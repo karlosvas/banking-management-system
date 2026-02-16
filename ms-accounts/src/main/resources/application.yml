@@ -1,0 +1,12 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ms-accounts
+  profiles:
+    active: dev
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400
