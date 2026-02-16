@@ -11,26 +11,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "transfers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
+public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
 }
 
-// Account
+// Transfer
 // Campo Tipo Descripción
 // id UUID Identificador único
-// accountNumber String IBAN (único)
-// customerId UUID ID del cliente (referencia a ms-customers)
-// accountType Enum Tipo de cuenta
-// currency String Moneda (EUR, USD)
-// balance BigDecimal Saldo actual
-// alias String Nombre personalizado
-// status Enum Estado de la cuenta
-// dailyWithdrawalLimit BigDecimal Límite diario de retiro
+// sourceAccountId UUID Cuenta origen
+// destinationAccountNumber String IBAN destino
+// amount BigDecimal Monto transferido
+// fee BigDecimal Comisión aplicada
+// concept String Concepto
+// status Enum Estado
+// scheduledDate LocalDate Fecha programada (nullable)
+// executedAt Instant Fecha de ejecución
 // createdAt Instant Fecha de creación
-// updatedAt Instant Fecha de actualización

@@ -1,4 +1,4 @@
 package com.bytes.bms.dtos;
 
-public class AccountDTO {
+public class TransactionDTO {
 }
