@@ -1,0 +1,12 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ms-customers
+  profiles:
+    active: dev
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400
