@@ -23,4 +23,5 @@ public class CustomerController {
     public RegisterResponseDTO registerCustomer(@Valid @RequestBody RegisterRequestDTO customer) {
         return customerService.registerCustomer(customer);
     }
+    
 }

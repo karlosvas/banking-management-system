@@ -12,7 +12,7 @@ public interface CustomerMapper {
 
     @Mapping(target = "status", source = "status")
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdAt", expression = "java(java.time.Instant.now())")
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "role", constant = "CUSTOMER")
     Customer toCustomer(RegisterRequestDTO dto, CustomerStatus status);
