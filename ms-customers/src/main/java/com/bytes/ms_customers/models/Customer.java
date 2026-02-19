@@ -1,7 +1,13 @@
 package com.bytes.ms_customers.models;
 
+import java.time.Instant;
 import java.util.UUID;
+import com.bytes.ms_customers.enums.CustomerRole;
+import com.bytes.ms_customers.enums.CustomerStatus;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,19 +25,39 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
-}
 
-// Customer
-// Campo Tipo Descripción
-// id UUID Identificador único
-// dni String Documento de identidad (único)
-// firstName String Nombre
-// lastName String Apellidos
-// email String Correo electrónico (único)
-// password String Hash de la contraseña
-// phone String Teléfono de contacto
-// address String Dirección postal
-// status Enum Estado del cliente
-// role Enum Rol del usuario
-// createdAt Instant Fecha de creación
-// updatedAt Instant Fecha de actualización
+    @Column
+    private String dni;
+
+    @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
+    @Column
+    private String email;
+
+    @Column
+    private String password;
+
+    @Column
+    private String phone;
+
+    @Column
+    private String address;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private CustomerStatus status;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private CustomerRole role;
+
+    @Column
+    private Instant createdAt;
+
+    @Column
+    private Instant updatedAt;
+}
