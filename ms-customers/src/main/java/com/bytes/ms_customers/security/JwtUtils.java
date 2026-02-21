@@ -14,10 +14,10 @@ public class JwtUtils {
 
     @Value("${JWT_SECRET_KEY}")
     private String secretKey;
-    private long jwtExpiration = 86400000;
 
 
     public String generateToken(String username) {
+        long jwtExpiration = 86400000;
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
