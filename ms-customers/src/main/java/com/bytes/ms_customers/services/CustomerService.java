@@ -1,9 +1,12 @@
 package com.bytes.ms_customers.services;
 
 import org.springframework.stereotype.Service;
+import java.util.Optional;
+import com.bytes.ms_customers.dtos.CustomerDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerStatus;
+import com.bytes.ms_customers.exception.ResourceNotFoundException;
 import com.bytes.ms_customers.mappers.CustomerMapper;
 import com.bytes.ms_customers.models.Customer;
 import com.bytes.ms_customers.repositories.CustomerRepository;
@@ -29,5 +32,14 @@ public class CustomerService {
         );
 
         return customerMapper.toRegisterResponse(saved);
+    }
+
+    public CustomerDTO getCurrentCustomer(String email) {
+        Optional<Customer> customer = customerRepository.findByEmail(email);
+
+        if(!customer.isPresent())
+            throw new ResourceNotFoundException("Cliente", email);
+
+        return customerMapper.toCustomerDTO(customer.get());
     }
 }
