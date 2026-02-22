@@ -5,8 +5,8 @@ spring:
   application:
     name: ms-customers
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET_KEY}
   expiration: 86400
