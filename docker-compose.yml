@@ -1,8 +1,16 @@
-version: '3.8'
+version: "3.8"
+
+x-common-variables: &common-variables
+  SPRING_PROFILES_ACTIVE: ${APP_PROFILE}
+  SPRING_DATASOURCE_USERNAME: ${DB_USER}
+  SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  JWT_SECRET_KEY: ${JWT_SECRET}
 
 services:
   postgres-customers:
     image: postgres:15
+    container_name: postgres-customers
     environment:
       POSTGRES_DB: customers_db
       POSTGRES_USER: ${DB_USER}
@@ -12,6 +20,7 @@ services:
 
   postgres-accounts:
     image: postgres:15
+    container_name: postgres-accounts
     environment:
       POSTGRES_DB: accounts_db
       POSTGRES_USER: ${DB_USER}
@@ -20,18 +29,17 @@ services:
       - "5434:5432"
 
   ms-customers:
+    container_name: ms-customers
     build: ./ms-customers
     ports:
       - "8081:8081"
     depends_on:
       - postgres-customers
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-customers:5432/customers_db
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      <<: *common-variables
 
   ms-accounts:
+    container_name: ms-accounts
     build: ./ms-accounts
     ports:
       - "8082:8082"
@@ -39,8 +47,5 @@ services:
       - postgres-accounts
       - ms-customers
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-accounts:5432/accounts_db
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      <<: *common-variables
       CUSTOMERS_SERVICE_URL: http://ms-customers:8081
