@@ -1,4 +1,4 @@
-package com.bytes.ms_customers.exception;
+package com.bytes.ms_customers.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
     private final String resource;

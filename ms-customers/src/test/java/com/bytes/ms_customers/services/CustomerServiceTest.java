@@ -17,7 +17,7 @@ import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerRole;
 import com.bytes.ms_customers.enums.CustomerStatus;
-import com.bytes.ms_customers.exception.ResourceNotFoundException;
+import com.bytes.ms_customers.exceptions.ResourceNotFoundException;
 import com.bytes.ms_customers.mappers.CustomerMapper;
 import com.bytes.ms_customers.models.Customer;
 import com.bytes.ms_customers.repositories.CustomerRepository;
