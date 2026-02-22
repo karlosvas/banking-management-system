@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres-customers:
@@ -30,8 +30,11 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
 
   ms-accounts:
+    env_file:
+      - .env
     build: ./ms-accounts
     ports:
       - "8082:8082"
@@ -44,3 +47,4 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       CUSTOMERS_SERVICE_URL: http://ms-customers:8081
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
