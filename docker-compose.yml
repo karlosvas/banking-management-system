@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres-customers:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: customers_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+
+  postgres-accounts:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: accounts_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5434:5432"
+
+  ms-customers:
+    build: ./ms-customers
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-customers
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-customers:5432/customers_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  ms-accounts:
+    build: ./ms-accounts
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres-accounts
+      - ms-customers
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-accounts:5432/accounts_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      CUSTOMERS_SERVICE_URL: http://ms-customers:8081
