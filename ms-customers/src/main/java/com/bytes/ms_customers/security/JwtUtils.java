@@ -29,9 +29,9 @@ public class JwtUtils {
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser()
-                    .setSigningKey(getSignInKey())
+                    .verifyWith((SecretKey) getSignInKey())
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (Exception e) {
             return false;
@@ -44,10 +44,10 @@ public class JwtUtils {
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = Jwts.parser()
-                .setSigningKey(getSignInKey())
+                .verifyWith((SecretKey) getSignInKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
         return claimsResolver.apply(claims);
     }
 
