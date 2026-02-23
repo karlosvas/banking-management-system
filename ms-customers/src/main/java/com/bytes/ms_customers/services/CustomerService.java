@@ -1,5 +1,6 @@
 package com.bytes.ms_customers.services;
 
+import org.springframework.security.crypto.password.PasswordEncoder; // <--- 1. IMPORTANTE
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import com.bytes.ms_customers.dtos.CustomerDTO;
@@ -16,19 +17,22 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+
+    public CustomerService(CustomerRepository customerRepository,
+                           CustomerMapper customerMapper,
+                           PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public RegisterResponseDTO registerCustomer(RegisterRequestDTO dto) {
-        // TODO: Cuando se implemente la seguridad, se debe encriptar la contraseña antes de guardarla
-        // dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // Obtenemos el cliente a partir del DTO y lo guardamos en la base de datos
         Customer saved = customerRepository.save(
-            customerMapper.toCustomer(dto, CustomerStatus.ACTIVE)
+                customerMapper.toCustomer(dto, CustomerStatus.ACTIVE)
         );
 
         return customerMapper.toRegisterResponse(saved);

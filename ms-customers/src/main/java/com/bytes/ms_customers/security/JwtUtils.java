@@ -1,30 +1,37 @@
 package com.bytes.ms_customers.security;
 
-import io.jsonwebtoken.*;
+import com.bytes.ms_customers.enums.CustomerRole;
+import io.jsonwebtoken.Claims; // Importante para extraer datos
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
-import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtils {
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${jwt.secret:5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}")
     private String secretKey;
 
-    public String generateToken(String username, UUID customerId) {
-        long jwtExpiration = 86400000;
+    @Value("${jwt.expiration:86400000}")
+    private long jwtExpiration;
+
+    // Este método ya cumple el ticket: Pide ID y Rol para meterlos en el token
+    public String generateToken(String username, UUID customerId, CustomerRole role) {
         return Jwts.builder()
                 .subject(username)
                 .claim("customerId", customerId.toString())
+                .claim("role", role.name())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .signWith(getSignInKey())
                 .compact();
     }
 
