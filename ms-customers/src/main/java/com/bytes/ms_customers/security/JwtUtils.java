@@ -1,4 +1,5 @@
 package com.bytes.ms_customers.security;
+
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -8,6 +9,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
+import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtils {

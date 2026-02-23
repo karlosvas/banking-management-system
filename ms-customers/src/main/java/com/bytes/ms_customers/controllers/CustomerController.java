@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
 import com.bytes.ms_customers.dtos.CustomerDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.services.CustomerService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -27,16 +27,16 @@ public class CustomerController {
     }
 
     @PostMapping("/register")
-    public RegisterResponseDTO registerCustomer(@Valid @RequestBody RegisterRequestDTO customer) {
-        return customerService.registerCustomer(customer);
+    public ResponseEntity<RegisterResponseDTO> registerCustomer(@Valid @RequestBody RegisterRequestDTO customer) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.registerCustomer(customer));
     }
 
     @GetMapping("/me")
-    public CustomerDTO getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CustomerDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        return customerService.getCurrentCustomer(userDetails.getUsername());
+        return ResponseEntity.ok(customerService.getCurrentCustomer(userDetails.getUsername()));
     }
     
 }
