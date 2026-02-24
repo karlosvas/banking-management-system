@@ -40,6 +40,6 @@ public class CustomerController {
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(customerService.login(request));
     }
-    
+
 }
 
