@@ -1,7 +1,7 @@
 package com.bytes.ms_customers.security;
 
 import com.bytes.ms_customers.enums.CustomerRole;
-import io.jsonwebtoken.Claims; // Importante para extraer datos
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.secret:5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}")
+    @Value("${JWT_SECRET_KEY}")
     private String secretKey;
 
     @Value("${jwt.expiration:86400000}")
