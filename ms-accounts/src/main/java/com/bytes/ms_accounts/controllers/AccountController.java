@@ -35,7 +35,6 @@ public class AccountController {
         AccountDTO account = accountService.createAccount(request, customerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
-
     
     @GetMapping
     public ResponseEntity<List<AccountDTO>> getAccount(HttpServletRequest httpRequest) {

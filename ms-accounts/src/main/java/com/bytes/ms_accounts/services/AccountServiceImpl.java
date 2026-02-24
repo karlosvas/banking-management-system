@@ -40,7 +40,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDTO createAccount(RequestAccountDTO request, UUID customerId) {
         // Validar que el customer existe y está activo
         CustomerDTO customer = customerClient.getCustomerById(customerId);
-        if (!customer.getStatus().equals(CustomerStatus.ACTIVE))
+        if (!customer.status().equals(CustomerStatus.ACTIVE))
             throw new BusinessException(String.format("Customer %s no está activo", customerId));
 
         // Máximo 3 cuentas por cliente
@@ -70,7 +70,6 @@ public class AccountServiceImpl implements AccountService {
 
 
     public List<AccountDTO> getAccounts(UUID customerUuid) {
-
         // Si el cliente no existe o no está activo, lanzamos una excepción
         CustomerValidationResponse customerValidation = customerClient.validateCustomer(customerUuid);
         if (!customerValidation.exists())

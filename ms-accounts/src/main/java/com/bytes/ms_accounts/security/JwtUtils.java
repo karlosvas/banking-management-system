@@ -16,7 +16,7 @@ import java.util.UUID;
 @Component
 public class JwtUtils {
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${JWT_SECRET_KEY:clave_por_defecto_para_test_12345}")
     private String secretKey;
 
     public boolean isTokenValid(String token) {

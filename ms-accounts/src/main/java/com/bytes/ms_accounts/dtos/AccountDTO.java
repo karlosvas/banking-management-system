@@ -5,11 +5,15 @@ import java.time.Instant;
 import java.util.Currency;
 import java.util.UUID;
 import com.bytes.ms_accounts.enums.StatusType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccountDTO {
     private UUID id;
     private String accountNumber;

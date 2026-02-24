@@ -8,5 +8,5 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
 jwt:
-  secret: ${JWT_SECRET_KEY}
+  secret: ${JWT_SECRET_KEY:clave_por_defecto_para_desarrollo_muy_larga_12345}
   expiration: 86400
