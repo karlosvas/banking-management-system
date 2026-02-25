@@ -1,0 +1,12 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ms-customers
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+jwt:
+  secret: "${JWT_SECRET_KEY}"
+  expiration: 86400000
