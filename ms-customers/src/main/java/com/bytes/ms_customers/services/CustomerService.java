@@ -6,6 +6,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder; // <--- 1. IMPORTANTE
 import org.springframework.stereotype.Service;
 import java.util.Optional;
+import java.util.UUID;
+import com.bytes.ms_customers.dtos.CustomerValidationResponse;
 
 import com.bytes.ms_customers.enums.CustomerStatus;
 import com.bytes.ms_customers.exceptions.ResourceNotFoundException;
@@ -66,6 +68,19 @@ public class CustomerService {
         );
 
         return new LoginResponseDTO(token);
+    }
+    public CustomerValidationResponse validateCustomer(UUID customerId) {
+        return customerRepository.findById(customerId)
+                .map(customer -> CustomerValidationResponse.builder()
+                        .customerId(customer.getId())
+                        .exists(true)
+                        .isActive(customer.getStatus() == CustomerStatus.ACTIVE)
+                        .build())
+                .orElse(CustomerValidationResponse.builder()
+                        .customerId(customerId)
+                        .exists(false)
+                        .isActive(false)
+                        .build());
     }
 
 
