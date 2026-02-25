@@ -1,5 +1,6 @@
 package com.bytes.ms_customers.controllers;
 
+import com.bytes.ms_customers.dtos.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,9 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.bytes.ms_customers.dtos.CustomerDTO;
-import com.bytes.ms_customers.dtos.RegisterRequestDTO;
-import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.services.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +36,10 @@ public class CustomerController {
 
         return ResponseEntity.ok(customerService.getCurrentCustomer(userDetails.getUsername()));
     }
-    
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+        return ResponseEntity.ok(customerService.login(request));
+    }
+
 }
 

@@ -8,5 +8,5 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
 jwt:
-  secret: ${JWT_SECRET_KEY}
-  expiration: 86400
+  secret: "${JWT_SECRET_KEY}"
+  expiration: 86400000
