@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.bytes.ms_customers.dtos.CustomerDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
@@ -21,6 +23,7 @@ import com.bytes.ms_customers.exceptions.ResourceNotFoundException;
 import com.bytes.ms_customers.mappers.CustomerMapper;
 import com.bytes.ms_customers.models.Customer;
 import com.bytes.ms_customers.repositories.CustomerRepository;
+import com.bytes.ms_customers.security.JwtUtils;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceTest {
@@ -30,6 +33,12 @@ class CustomerServiceTest {
 
     @Mock
     private CustomerMapper customerMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtUtils jwtUtils;
 
     @InjectMocks
     private CustomerService customerService;
