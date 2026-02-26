@@ -84,3 +84,11 @@ Once the application is running, you will be able to access the interactive docu
 
 - **ms-customers:** `http://localhost:8081/swagger-ui/index.html`
 - **ms-accounts:** `http://localhost:8082/swagger-ui/index.html`
+
+## Github Actions CI/CD 🔄
+
+The project is configured with GitHub Actions for continuous integration. The workflow includes:
+
+- **Format Code** (`format.yml`): Triggered on every PR to `main`. Automatically applies Spotless formatting across both microservices and commits the changes if any are detected.
+- **Protect Main Branch** (`protect_main.yml`): Blocks any PR targeting `main` that does not originate from `develop`, enforcing the `feature → develop → main` branching strategy.
+- **Branch Ruleset**: Direct pushes to `main` are blocked at the repository level, ensuring all changes go through a pull request.
