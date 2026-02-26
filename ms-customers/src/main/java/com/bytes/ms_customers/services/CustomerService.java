@@ -3,7 +3,7 @@ package com.bytes.ms_customers.services;
 import com.bytes.ms_customers.dtos.*;
 import com.bytes.ms_customers.security.JwtUtils;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder; // <--- 1. IMPORTANTE
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,6 +52,7 @@ public class CustomerService {
 
         return customerMapper.toCustomerDTO(customer.get());
     }
+    
     public LoginResponseDTO login(LoginRequestDTO request) {
         Customer customer = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Email o contraseña incorrectos"));
@@ -59,7 +60,6 @@ public class CustomerService {
         if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
             throw new BadCredentialsException("Email o contraseña incorrectos");
         }
-
 
         String token = jwtUtils.generateToken(
                 customer.getEmail(),
@@ -69,6 +69,7 @@ public class CustomerService {
 
         return new LoginResponseDTO(token);
     }
+
     public CustomerValidationResponse validateCustomer(UUID customerId) {
         return customerRepository.findById(customerId)
                 .map(customer -> CustomerValidationResponse.builder()
