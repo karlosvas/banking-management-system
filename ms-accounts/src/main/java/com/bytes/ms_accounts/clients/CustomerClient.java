@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.bytes.ms_accounts.dtos.CustomerDTO;
 import com.bytes.ms_accounts.dtos.CustomerValidationResponse;
 
-@FeignClient(name = "ms-customers", url = "${CUSTOMERS_SERVICE_URL}")
+@FeignClient(name = "ms-customers", url = "${CUSTOMERS_SERVICE_URL:http://localhost:8081}")
 public interface CustomerClient {
     @GetMapping("/api/customers/{customerUuid}")
     CustomerDTO getCustomerById(@PathVariable UUID customerUuid);
