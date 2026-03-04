@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bytes.ms_accounts.annotations.SwaggerApiResponses;
 import com.bytes.ms_accounts.dtos.AccountDTO;
 import com.bytes.ms_accounts.dtos.RequestAccountDTO;
+import com.bytes.ms_accounts.dtos.TransactionDTO;
+import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
 import com.bytes.ms_accounts.security.JwtUtils;
 import com.bytes.ms_accounts.services.AccountServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,6 +70,22 @@ public class AccountController {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
         AccountDTO account = accountService.getAccountById(accountId, customerId);
         return ResponseEntity.ok().body(account);
+    }
+
+    @Operation(
+        summary = "Withdraw money from account",
+        description = "Withdraws money from the authenticated customer's account. Validates sufficient balance and daily withdrawal limit."
+    )
+    @ApiResponse(responseCode = "200", description = "Withdrawal successful")
+    @PostMapping("/{accountId}/withdraw")
+    public ResponseEntity<TransactionDTO> withdraw(
+            @PathVariable UUID accountId,
+            @Valid @RequestBody WithdrawalRequestDTO request,
+            HttpServletRequest httpRequest) {
+        
+        UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
+        TransactionDTO transaction = accountService.withdraw(accountId, customerId, request);
+        return ResponseEntity.ok().body(transaction);
     }
     
 }
