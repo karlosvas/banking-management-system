@@ -2,6 +2,8 @@ package com.bytes.ms_accounts.dtos;
 
 import java.time.Instant;
 import java.util.UUID;
+
+import com.bytes.ms_accounts.enums.CustomerRole;
 import com.bytes.ms_accounts.enums.CustomerStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -27,6 +29,8 @@ public class CustomerDTO {
     private String address;
     @Schema(description = "Customer status", accessMode = Schema.AccessMode.READ_ONLY)
     private CustomerStatus status;
+    @Schema(description = "Customer role", accessMode = Schema.AccessMode.READ_ONLY)
+    private CustomerRole role;
     @Schema(description = "Customer record creation date", accessMode = Schema.AccessMode.READ_ONLY)
     private Instant createdAt;
 }

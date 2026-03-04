@@ -17,6 +17,7 @@ import com.bytes.ms_accounts.dtos.CustomerValidationResponse;
 import com.bytes.ms_accounts.dtos.RequestAccountDTO;
 import com.bytes.ms_accounts.dtos.TransactionDTO;
 import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
+import com.bytes.ms_accounts.enums.AccountStatus;
 import com.bytes.ms_accounts.enums.CustomerStatus;
 import com.bytes.ms_accounts.enums.StatusType;
 import com.bytes.ms_accounts.enums.TransactionStatus;
@@ -66,7 +67,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountMapper.toEntity(request);
         account.setCustomerId(customerId);
         account.setBalance(BigDecimal.ZERO);
-        account.setStatus(StatusType.ACTIVE);
+        account.setStatus(AccountStatus.ACTIVE);
         account.setCreatedAt(Instant.now());
         account.setAccountNumber(generateIBAN());
 
@@ -129,7 +130,7 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(String.format("Account %s does not belong to customer %s", accountId, customerId));
         }
 
-        if (!account.getStatus().equals(StatusType.ACTIVE)) {
+        if (!account.getStatus().equals(AccountStatus.ACTIVE)) {
             transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Account is not active");
             throw new BusinessException(String.format("Account %s is not active", accountId));
         }

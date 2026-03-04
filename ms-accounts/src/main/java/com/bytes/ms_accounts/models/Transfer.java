@@ -44,8 +44,10 @@ public class Transfer {
     @Column
     public String concept;
 
+    @Column
     @Enumerated(EnumType.STRING)
     public TransferStatus status;
+
     @Column(nullable = true)
     public LocalDate scheduledDate;
 
