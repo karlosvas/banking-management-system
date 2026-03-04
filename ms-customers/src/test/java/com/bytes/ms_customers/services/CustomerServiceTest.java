@@ -56,7 +56,7 @@ class CustomerServiceTest {
         RegisterResponseDTO result = customerService.registerCustomer(request);
 
         assertThat(result).isNotNull();
-        assertThat(result.getDni()).isEqualTo("12345678A");
+        assertThat(result.dni()).isEqualTo("12345678A");
 
         verify(customerRepository).save(customer);
     }
@@ -121,14 +121,14 @@ class CustomerServiceTest {
     }
 
     private RegisterResponseDTO createRegisterResponse() {
-        return RegisterResponseDTO.builder()
-            .id(UUID.randomUUID())
-            .dni("12345678A")
-            .fullName("Juan Pérez")
-            .email("juan.perez@example.com")
-            .status(CustomerStatus.ACTIVE)
-            .createdAt(Instant.now())
-            .build();
+        return new RegisterResponseDTO(
+            UUID.randomUUID(),
+            "12345678A",
+            "Juan Pérez",
+            "juan.perez@example.com",
+            CustomerStatus.ACTIVE,
+            Instant.now()
+        );
     }
 
     private CustomerDTO createCustomerDTO() {

@@ -7,6 +7,8 @@ import com.bytes.ms_customers.dtos.LoginRequestDTO;
 import com.bytes.ms_customers.dtos.LoginResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
+import com.bytes.ms_customers.exceptions.ForbiddenException;
+import com.bytes.ms_customers.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import com.bytes.ms_customers.services.CustomerService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -49,7 +49,7 @@ public class CustomerController {
     @GetMapping("/me")
     public ResponseEntity<CustomerDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException("No autenticado");
 
         return ResponseEntity.ok(customerService.getCurrentCustomer(userDetails.getUsername()));
     }
@@ -68,9 +68,8 @@ public class CustomerController {
             @PathVariable UUID customerId,
             @RequestHeader(value = "X-Internal-Service", required = false) String internalService) {
 
-        if (!"ms-accounts".equals(internalService)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso restringido a llamadas internas");
-        }
+        if (!"ms-accounts".equals(internalService))
+            throw new ForbiddenException("Acceso restringido a llamadas internas");
 
         return ResponseEntity.ok(customerService.validateCustomer(customerId));
     }
