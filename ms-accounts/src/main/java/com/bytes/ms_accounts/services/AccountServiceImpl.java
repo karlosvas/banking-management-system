@@ -9,6 +9,8 @@ import java.util.Random;
 import java.util.UUID;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bytes.ms_accounts.dtos.AccountDTO;
 import com.bytes.ms_accounts.dtos.CustomerDTO;
 import com.bytes.ms_accounts.dtos.CustomerValidationResponse;
@@ -17,6 +19,7 @@ import com.bytes.ms_accounts.dtos.TransactionDTO;
 import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
 import com.bytes.ms_accounts.enums.CustomerStatus;
 import com.bytes.ms_accounts.enums.StatusType;
+import com.bytes.ms_accounts.enums.TransactionStatus;
 import com.bytes.ms_accounts.enums.TransactionType;
 import com.bytes.ms_accounts.exceptions.BusinessException;
 import com.bytes.ms_accounts.mappers.AccountMapper;
@@ -24,7 +27,6 @@ import com.bytes.ms_accounts.models.Account;
 import com.bytes.ms_accounts.models.Transaction;
 import com.bytes.ms_accounts.repositories.AccountRepository;
 import com.bytes.ms_accounts.services.impl.AccountService;
-import com.bytes.ms_accounts.services.impl.TransactionService;
 import com.bytes.ms_accounts.clients.CustomerClient;
 
 @Service
@@ -32,20 +34,23 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-    private final TransactionServiceImpl transactionService;
+    private final TransactionServiceImpl transactionServiceImpl;
     // Foreign key to validate that customer exists and is active
     private final CustomerClient customerClient;
     private final Random random = new Random();
+    private final TransactionRecorderService transactionRecorderService;
     
     public AccountServiceImpl(
             AccountRepository accountRepository,
             AccountMapper accountMapper,
-            TransactionService transactionService,
-            CustomerClient customerClient) {
+            TransactionServiceImpl transactionServiceImpl,
+            CustomerClient customerClient,
+            TransactionRecorderService transactionRecorderService) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
-        this.transactionService = transactionService;
+        this.transactionServiceImpl = transactionServiceImpl;
         this.customerClient = customerClient;
+        this.transactionRecorderService = transactionRecorderService;
     }
 
     public AccountDTO createAccount(@NonNull RequestAccountDTO request, @NonNull UUID customerId) {
@@ -107,44 +112,46 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.toDTO(accountOpt.get());
     }
 
+    @Transactional
     public TransactionDTO withdraw(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull WithdrawalRequestDTO request) {
-        // Validate account exists and belongs to the customer
+        String referenceNumber = generateReferenceNumber();
+
         Optional<Account> accountOpt = accountRepository.findById(accountId);
-        if (!accountOpt.isPresent())
+        if (accountOpt.isEmpty()) {
+            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Account does not exist");
             throw new BusinessException(String.format("Account %s does not exist", accountId));
-        
-        // Obtain the account entity for further validations and updates
-        Account account = accountOpt.get();
-
-        // Verify account belongs to the authenticated customer
-        if (!account.getCustomerId().equals(customerId))
-            throw new BusinessException(String.format("Account %s does not belong to customer %s", accountId, customerId));
-
-        // Verify account is active
-        if (!account.getStatus().equals(StatusType.ACTIVE))
-            throw new BusinessException(String.format("Account %s is not active", accountId));
-
-        // Validate sufficient balance
-        if (account.getBalance().compareTo(request.getAmount()) < 0)
-            throw new BusinessException(String.format("Insufficient balance. Available: %s, Requested: %s", account.getBalance(), request.getAmount()));
-        
-        // Validate daily withdrawal limit
-        BigDecimal todayWithdrawalTotal = transactionService.getTodayWithdrawalTotal(accountId);
-        BigDecimal totalWithdrawalAfterThisTransaction = todayWithdrawalTotal.add(request.getAmount());
-
-        if (totalWithdrawalAfterThisTransaction.compareTo(account.getDailyWithdrawalLimit()) > 0) {
-            BigDecimal remainingDailyLimit = account.getDailyWithdrawalLimit().subtract(todayWithdrawalTotal);
-            throw new BusinessException(String.format("Daily withdrawal limit exceeded. You can withdraw up to %s more today", remainingDailyLimit));
         }
 
-        // Execute withdrawal
+        Account account = accountOpt.get();
+
+        if (!account.getCustomerId().equals(customerId)) {
+            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Account does not belong to customer");
+            throw new BusinessException(String.format("Account %s does not belong to customer %s", accountId, customerId));
+        }
+
+        if (!account.getStatus().equals(StatusType.ACTIVE)) {
+            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Account is not active");
+            throw new BusinessException(String.format("Account %s is not active", accountId));
+        }
+
+        if (account.getBalance().compareTo(request.getAmount()) < 0) {
+            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Insufficient balance");
+            throw new BusinessException(String.format("Insufficient balance. Available: %s, Requested: %s", account.getBalance(), request.getAmount()));
+        }
+
+        BigDecimal todayWithdrawalTotal = transactionServiceImpl.getTodayWithdrawalTotal(accountId);
+        BigDecimal totalAfter = todayWithdrawalTotal.add(request.getAmount());
+        if (totalAfter.compareTo(account.getDailyWithdrawalLimit()) > 0) {
+            BigDecimal remaining = account.getDailyWithdrawalLimit().subtract(todayWithdrawalTotal);
+            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Daily withdrawal limit exceeded");
+            throw new BusinessException(String.format("Daily withdrawal limit exceeded. You can withdraw up to %s more today", remaining));
+        }
+
         BigDecimal newBalance = account.getBalance().subtract(request.getAmount());
         account.setBalance(newBalance);
         account.setUpdatedAt(Instant.now());
         accountRepository.save(account);
 
-        // Record the transaction
-        String referenceNumber = generateReferenceNumber();
         Transaction transaction = Transaction.builder()
             .accountId(accountId)
             .type(TransactionType.WITHDRAWAL)
@@ -152,15 +159,11 @@ public class AccountServiceImpl implements AccountService {
             .balanceAfter(newBalance)
             .concept(request.getDescription())
             .referenceNumber(referenceNumber)
-            .status(StatusType.ACTIVE)
+            .status(TransactionStatus.COMPLETED)
             .createdAt(Instant.now())
             .build();
 
-        // If for some reason the transaction cannot be created, we throw an exception to rollback the withdrawal
-        if (transaction == null)
-            throw new BusinessException("Error creating transaction");
-
-        return transactionService.createTransaction(transaction);
+        return transactionServiceImpl.createTransaction(transaction);
     }
 
     private String generateReferenceNumber() {

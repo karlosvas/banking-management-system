@@ -3,7 +3,7 @@ package com.bytes.ms_accounts.models;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
-import com.bytes.ms_accounts.enums.StatusType;
+import com.bytes.ms_accounts.enums.TransactionStatus;
 import com.bytes.ms_accounts.enums.TransactionType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,7 +56,7 @@ public class Transaction {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    public StatusType status;
+    public TransactionStatus status;
 
     @Column(nullable = false)
     public Instant createdAt;

@@ -3,6 +3,9 @@ package com.bytes.ms_accounts.dtos;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+
+import org.springframework.transaction.TransactionStatus;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
@@ -30,7 +33,7 @@ public class TransactionDTO {
     @Schema(description = "Transaction reference number", minLength = 1, maxLength = 50, pattern = "^[A-Z0-9-]+$", example = "REF-2024-001")
     private String referenceNumber;
     @Schema(description = "Transaction status", allowableValues = {"PENDING", "COMPLETED", "FAILED"})
-    private String status;
+    private TransactionStatus status;
     @Schema(description = "Transaction creation date", accessMode = Schema.AccessMode.READ_ONLY)
     private Instant createdAt;
 }

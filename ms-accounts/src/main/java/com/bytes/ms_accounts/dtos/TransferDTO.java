@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import com.bytes.ms_accounts.enums.TransferStatus;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +28,7 @@ public class TransferDTO {
     @Schema(description = "Transfer concept", minLength = 1, maxLength = 200, example = "Monthly rent payment")
     private String concept;
     @Schema(description = "Transfer status", allowableValues = {"PENDING", "SCHEDULED", "COMPLETED", "FAILED"})
-    private String status;
+    private TransferStatus status;
     @Schema(description = "Scheduled execution date")
     private LocalDate scheduledDate;
     @Schema(description = "Actual execution date and time", accessMode = Schema.AccessMode.READ_ONLY)

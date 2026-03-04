@@ -1,7 +1,16 @@
 package com.bytes.ms_accounts.models;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
+
+import com.bytes.ms_accounts.enums.TransferStatus;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,17 +28,30 @@ public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
-}
 
-// Transfer
-// Campo Tipo Descripción
-// id UUID Identificador único
-// sourceAccountId UUID Cuenta origen
-// destinationAccountNumber String IBAN destino
-// amount BigDecimal Monto transferido
-// fee BigDecimal Comisión aplicada
-// concept String Concepto
-// status Enum Estado
-// scheduledDate LocalDate Fecha programada (nullable)
-// executedAt Instant Fecha de ejecución
-// createdAt Instant Fecha de creación
+    @Column
+    public UUID sourceAccountId;
+    
+    @Column
+    public String destinationAccountNumber;
+
+    @Column
+    public BigDecimal amount;
+
+    @Column
+    public BigDecimal fee;
+
+    @Column
+    public String concept;
+
+    @Enumerated(EnumType.STRING)
+    public TransferStatus status;
+    @Column(nullable = true)
+    public LocalDate scheduledDate;
+
+    @Column
+    public String executedAt;
+
+    @Column
+    public Instant createdAt;
+}
