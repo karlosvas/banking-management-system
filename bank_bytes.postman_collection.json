@@ -1,0 +1,299 @@
+{
+  "info": {
+    "_postman_id": "dba02a09-46ec-4126-acf0-a6cf78a547eb",
+    "name": "bank_bytes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "37428615"
+  },
+  "variable": [
+    {
+      "key": "baseUrlCustomers",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "baseUrlAccounts",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "accountUUID",
+      "value": "770e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "key": "customerId",
+      "value": "770e8400-e29b-41d4-a716-446655440000"
+    }
+  ],
+  "item": [
+    {
+      "name": "ms-customers",
+      "item": [
+        {
+          "name": "register_customer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"dni\": \"12345678A\",\r\n    \"firstName\": \"Carlos\",\r\n    \"lastName\": \"García López\",\r\n    \"email\": \"carlos.garcia@email.com\",\r\n    \"password\": \"SecurePass123!\",\r\n    \"phone\": \"+34612345678\",\r\n    \"address\": \"Calle Mayor 123, Madrid\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrlCustomers}}/api/customers/register"
+          },
+          "response": []
+        },
+        {
+          "name": "login_customer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"carlos.garcia@email.com\",\r\n    \"password\": \"SecurePass123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrlCustomers}}/api/customers/login"
+          },
+          "response": []
+        },
+        {
+          "name": "get_current_customer",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrlCustomers}}/api/customers/me"
+          },
+          "response": []
+        },
+        {
+          "name": "get_customer_by_id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrlCustomers}}/api/customers/{{customerId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "validate_customer_internal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Service",
+                "value": "ms-accounts"
+              }
+            ],
+            "url": "{{baseUrlCustomers}}/api/customers/{{customerId}}/validate"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ms-accounts",
+      "item": [
+        {
+          "name": "create_account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"accountType\": \"SAVINGS\",\r\n\"currency\": \"EUR\",\r\n\"alias\": \"Mi cuenta de ahorros\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrlAccounts}}/api/accounts"
+          },
+          "response": []
+        },
+        {
+          "name": "withdraw_from_account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"amount\": 200.00,\r\n    \"description\": \"Retiro cajero automático\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrlAccounts}}/api/accounts/{{accountUUID}}/withdraw"
+          },
+          "response": []
+        },
+        {
+          "name": "deposit_to_account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"amount\": 500.00,\r\n    \"description\": \"Depósito en efectivo\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrlAccounts}}/api/accounts/{{accountUUID}}/deposit"
+          },
+          "response": []
+        },
+        {
+          "name": "create_transfer",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"sourceAccountId\": \"660e8400-e29b-41d4-a716-446655440001\",\r\n    \"destinationAccountNumber\": \"ES9121000418450200051332\",\r\n    \"amount\": 150.00,\r\n    \"concept\": \"Pago alquiler enero\",\r\n    \"scheduledDate\": null\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrlAccounts}}/api/transfers"
+          },
+          "response": []
+        },
+        {
+          "name": "get_account_transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrlAccounts}}/api/accounts/{{accountUUID}}/transactions?page=0&size=20&fromDate=2025-01-01&toDate=2025-01-31&type=TRANSFER_OUT"
+          },
+          "response": []
+        },
+        {
+          "name": "get_accounts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrlAccounts}}/api/accounts"
+          },
+          "response": []
+        },
+        {
+          "name": "get_account_by_id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrlAccounts}}/api/accounts/{{accountUUID}}"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

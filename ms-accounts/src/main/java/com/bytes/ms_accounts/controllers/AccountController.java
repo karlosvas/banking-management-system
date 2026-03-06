@@ -1,54 +1,152 @@
 package com.bytes.ms_accounts.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.bytes.ms_accounts.dtos.AccountDTO;
-import com.bytes.ms_accounts.dtos.RequestAccountDTO;
+import com.bytes.ms_accounts.annotations.SwaggerApiResponses;
+import com.bytes.ms_accounts.dtos.TransactionDTO;
+import com.bytes.ms_accounts.dtos.TransactionHistoryRequestDTO;
+import com.bytes.ms_accounts.dtos.TransactionHistoryResponseDTO;
+import com.bytes.ms_accounts.dtos.DepositRequestDTO;
+import com.bytes.ms_accounts.dtos.DepositResponseDTO;
+import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
+import com.bytes.ms_accounts.dtos.AccountResponseDTO;
+import com.bytes.ms_accounts.exceptions.UnauthorizedException;
+import com.bytes.ms_accounts.dtos.AccountRequestDTO;
+import com.bytes.ms_accounts.enums.TransactionType;
 import com.bytes.ms_accounts.security.JwtUtils;
 import com.bytes.ms_accounts.services.AccountServiceImpl;
+import com.bytes.ms_accounts.services.TransactionServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
+/**
+ * REST controller for account operations.
+ *
+ * <p>Exposes endpoints to create accounts, query accounts, perform deposits and
+ * withdrawals, and retrieve transaction history for the authenticated customer.</p>
+ */
+@SwaggerApiResponses
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
 
     private final AccountServiceImpl accountService;
+    private final TransactionServiceImpl transactionService;
     private final JwtUtils jwtUtils;
 
-    public AccountController(AccountServiceImpl accountService, JwtUtils jwtUtils) {
+    public AccountController(AccountServiceImpl accountService, TransactionServiceImpl transactionService, JwtUtils jwtUtils) {
         this.accountService = accountService;
+        this.transactionService = transactionService;
         this.jwtUtils = jwtUtils;
     }
 
-    @PutMapping
-    public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody RequestAccountDTO request, HttpServletRequest httpRequest) {
+    @Operation(
+        summary = "Create a new account",
+        description = "Creates a new bank account for the authenticated customer"
+    )
+    @ApiResponse(responseCode = "201", description = "Account created successfully")
+    @PostMapping
+    public ResponseEntity<AccountResponseDTO> createAccount(@Valid @RequestBody AccountRequestDTO request, HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
-        AccountDTO account = accountService.createAccount(request, customerId);
+
+        if (customerId == null)
+            throw new UnauthorizedException("Could not determine authenticated customer");
+
+        AccountResponseDTO account = accountService.createAccount(request, customerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
 
-    
+    @Operation(
+        summary = "Get all accounts",
+        description = "Retrieves all bank accounts for the authenticated customer"
+    )
+    @ApiResponse(responseCode = "200", description = "Accounts retrieved successfully")
     @GetMapping
-    public ResponseEntity<List<AccountDTO>> getAccount(HttpServletRequest httpRequest) {
+    public ResponseEntity<List<AccountResponseDTO>> getAccount(HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
-        List<AccountDTO> listAccounts = accountService.getAccounts(customerId);
+        List<AccountResponseDTO> listAccounts = accountService.getAccounts(customerId);
         return ResponseEntity.ok().body(listAccounts);
     }
 
+    @Operation(
+        summary = "Get account by ID",
+        description = "Retrieves a specific bank account by its ID. This endpoint requires the account to belong to the authenticated customer and is used for account management operations."
+    )
+    @ApiResponse(responseCode = "200", description = "Account retrieved successfully")
     @GetMapping("/{accountId}")
-    public ResponseEntity<AccountDTO> getAccountById(@PathVariable UUID accountId, HttpServletRequest httpRequest) {
+    public ResponseEntity<AccountResponseDTO> getAccountByMe(@PathVariable UUID accountId, HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
-        AccountDTO account = accountService.getAccountById(accountId, customerId);
+        AccountResponseDTO account = accountService.getAccountByMe(accountId, customerId);
         return ResponseEntity.ok().body(account);
     }
-    
+  
+    @Operation(
+        summary = "Deposit money into account",
+        description = "Deposits money into the authenticated customer's account and updates account balance"
+    )
+    @ApiResponse(responseCode = "200", description = "Deposit successful")
+    @PostMapping("/{accountId}/deposit")
+    public ResponseEntity<DepositResponseDTO> deposit(
+            @PathVariable UUID accountId,
+            @Valid @RequestBody DepositRequestDTO request,
+            HttpServletRequest httpRequest) {
+
+        UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
+        return ResponseEntity.ok().body(accountService.deposit(accountId, customerId, request));
+    }
+
+    @Operation(
+        summary = "Withdraw money from account",
+        description = "Withdraws money from the authenticated customer's account. Validates sufficient balance and daily withdrawal limit."
+    )
+    @ApiResponse(responseCode = "200", description = "Withdrawal successful")
+    @PostMapping("/{accountId}/withdraw")
+    public ResponseEntity<TransactionDTO> withdraw(
+            @PathVariable UUID accountId,
+            @Valid @RequestBody WithdrawalRequestDTO request,
+            HttpServletRequest httpRequest) {
+        
+        UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
+        TransactionDTO transaction = accountService.withdraw(accountId, customerId, request);
+        return ResponseEntity.ok().body(transaction);
+    }
+
+    @Operation(
+        summary = "Get transaction history",
+        description = "Retrieves paginated transaction history for the authenticated customer's account with optional filtering by transaction type and date range"
+    )
+    @ApiResponse(responseCode = "200", description = "Transaction history retrieved successfully")
+    @GetMapping("/{accountId}/transactions")
+    public ResponseEntity<TransactionHistoryResponseDTO> getTransactionHistory(
+            @PathVariable UUID accountId,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) LocalDate fromDate,
+            @RequestParam(required = false) LocalDate toDate,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            HttpServletRequest httpRequest) {
+        
+        UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
+        TransactionHistoryRequestDTO filters = TransactionHistoryRequestDTO.builder()
+            .type(type)
+            .fromDate(fromDate)
+            .toDate(toDate)
+            .page(page)
+            .size(size)
+            .build();
+
+        return ResponseEntity.ok().body(transactionService.getTransactionHistory(accountId, customerId, filters));
+    }
 }

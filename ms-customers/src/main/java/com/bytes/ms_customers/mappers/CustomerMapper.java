@@ -2,8 +2,7 @@ package com.bytes.ms_customers.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import com.bytes.ms_customers.dtos.CustomerDTO;
+import com.bytes.ms_customers.dtos.CustomerResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerStatus;
@@ -20,7 +19,7 @@ public interface CustomerMapper {
     Customer toCustomer(RegisterRequestDTO dto, CustomerStatus status);
 
     @Mapping(target = "fullName", expression = "java(customer.getFirstName() + \" \" + customer.getLastName())")
-    RegisterResponseDTO toRegisterResponse(Customer customer);
+    RegisterResponseDTO toRegisterResponseDTO(Customer customer);
 
-    CustomerDTO toCustomerDTO(Customer customer);
+    CustomerResponseDTO toCustomerResponseDTO(Customer customer);
 }

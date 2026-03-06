@@ -7,16 +7,21 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import com.bytes.ms_accounts.exceptions.AuthException;
+
+import com.bytes.ms_accounts.exceptions.UnauthorizedException;
+
 import java.security.Key;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
 import java.util.UUID;
 
 @Component
+/**
+ * JWT helper utilities for token validation and claims extraction.
+ */
 public class JwtUtils {
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${JWT_SECRET_KEY:example-secret-key-for-testing}")
     private String secretKey;
 
     public boolean isTokenValid(String token) {
@@ -53,11 +58,17 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-     public UUID getCustomerIdFromRequest(HttpServletRequest request) {
+    /**
+     * Extracts the authenticated customer id from the Authorization header.
+     *
+     * @param request current HTTP request
+     * @return customer id extracted from JWT
+     */
+    public UUID getCustomerIdFromRequest(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         
         if (header == null || !header.startsWith("Bearer "))
-            throw new AuthException("Invalid or missing Authorization header");
+            throw new UnauthorizedException("Invalid or missing Authorization header");
         
         String token = header.substring(7);
         return extractCustomerId(token);

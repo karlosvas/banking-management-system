@@ -15,15 +15,18 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @Component
+/**
+ * JWT helper utilities for token generation, validation, and claims extraction.
+ */
 public class JwtUtils {
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${JWT_SECRET_KEY:example-secret-key-for-testing}")
     private String secretKey;
 
     @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
 
-    // Este método ya cumple el ticket: Pide ID y Rol para meterlos en el token
+    // This method follows the ticket requirement: include ID and role in the token
     public String generateToken(String username, UUID customerId, CustomerRole role) {
         return Jwts.builder()
                 .subject(username)
