@@ -8,7 +8,6 @@ import com.bytes.ms_customers.dtos.LoginResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.exceptions.ForbiddenException;
-import com.bytes.ms_customers.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,9 +47,6 @@ public class CustomerController {
     @ApiResponse(responseCode = "200", description = "Current customer data obtained successfully")
     @GetMapping("/me")
     public ResponseEntity<CustomerResponseDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null)
-            throw new UnauthorizedException("No autenticado");
-
         return ResponseEntity.ok(customerService.getCurrentCustomer(userDetails.getUsername()));
     }
     

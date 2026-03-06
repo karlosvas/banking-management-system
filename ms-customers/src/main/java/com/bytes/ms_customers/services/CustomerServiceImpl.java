@@ -16,6 +16,7 @@ import com.bytes.ms_customers.dtos.LoginResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerStatus;
+import com.bytes.ms_customers.exceptions.ResourceAlreadyExistsException;
 import com.bytes.ms_customers.exceptions.ResourceNotFoundException;
 import com.bytes.ms_customers.mappers.CustomerMapper;
 import com.bytes.ms_customers.models.Customer;
@@ -39,6 +40,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public RegisterResponseDTO registerCustomer(@NonNull RegisterRequestDTO dto) {
+
+        if (customerRepository.existsByEmail(dto.getEmail()))
+            throw new ResourceAlreadyExistsException("Cliente", "email", dto.getEmail());
+
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         
         Customer mapped = Objects.requireNonNull(
