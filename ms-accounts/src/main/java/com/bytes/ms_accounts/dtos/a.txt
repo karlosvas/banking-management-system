@@ -1,0 +1,53 @@
+
+🔄 HU-10 – Transferencia entre cuentas
+
+Como cliente autenticado
+Quiero transferir dinero a otra cuenta
+Para realizar pagos o envíos de dinero
+
+Criterios de aceptación:
+
+La cuenta origen pertenece al cliente
+Validación de cliente activo vía ms-customers
+Saldo suficiente y monto dentro de límites
+Se registra transferencia y transacciones asociadas
+Se obtiene nombre del beneficiario si es cliente interno
+
+
+6. POST /api/transfers ⭐ (Endpoint Principal)
+Acceso: CUSTOMER autenticado
+Descripción: Realiza una transferencia entre cuentas.
+⚠️ Comunicación con ms-customers:
+Validar que el cliente origen está activo
+Si la cuenta destino pertenece a otro cliente del banco, obtener nombre del
+beneficiario para el comprobante llamando a GET /api/customers/{customerId}
+Body:
+json
+{
+"sourceAccountId": "660e8400-e29b-41d4-a716-446655440001",
+"destinationAccountNumber": "ES9121000418450200051332",
+"amount": 150.00,
+"concept": "Pago alquiler enero",
+"scheduledDate": null
+}
+Response (200 OK):
+json
+{
+"transferId": "880e8400-e29b-41d4-a716-446655440020",
+"status": "COMPLETED",
+"sourceAccount": "ES7620770024003102575766",
+"destinationAccount": "ES9121000418450200051332",
+"beneficiaryName": "María López Fernández",
+"amount": 150.00,
+"concept": "Pago alquiler enero",
+"fee": 0.00,
+"totalDebited": 150.00,
+"timestamp": "2025-01-20T10:30:00Z"
+}
+Validaciones:
+ENUNCIADO DEL PROYECTO (ABRIR) 9
+Cuenta origen pertenece al cliente autenticado
+Saldo suficiente (incluyendo comisiones si aplican)
+Cliente origen activo (llamada a ms-customers)
+Monto mínimo: 1 EUR
+Monto máximo por transferencia: 10,000 EUR
