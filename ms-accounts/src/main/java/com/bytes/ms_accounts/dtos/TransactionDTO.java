@@ -3,7 +3,6 @@ package com.bytes.ms_accounts.dtos;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
-
 import com.bytes.ms_accounts.enums.TransactionStatus;
 import com.bytes.ms_accounts.enums.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
