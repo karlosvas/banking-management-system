@@ -11,6 +11,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.bytes.ms_accounts.dtos.CustomerValidationResponse;
+import com.bytes.ms_accounts.dtos.DepositRequestDTO;
+import com.bytes.ms_accounts.dtos.DepositResponseDTO;
 import com.bytes.ms_accounts.dtos.TransactionDTO;
 import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
 import com.bytes.ms_accounts.enums.AccountStatus;
@@ -24,6 +26,7 @@ import com.bytes.ms_accounts.exceptions.AccountOwnershipException;
 import com.bytes.ms_accounts.exceptions.BusinessException;
 import com.bytes.ms_accounts.exceptions.ResourceNotFoundException;
 import com.bytes.ms_accounts.mappers.AccountMapper;
+import com.bytes.ms_accounts.mappers.TransactionMapper;
 import com.bytes.ms_accounts.models.Account;
 import com.bytes.ms_accounts.models.Transaction;
 import com.bytes.ms_accounts.repositories.AccountRepository;
@@ -41,18 +44,23 @@ public class AccountServiceImpl implements AccountService {
     private final CustomerClient customerClient;
     private final Random random = new Random();
     private final TransactionRecorderService transactionRecorderService;
+    private final TransactionMapper transactionMapper;
+    private final BigDecimal DAILY_WITHDRAWAL_LIMIT = new BigDecimal("1000.00");
     
     public AccountServiceImpl(
             AccountRepository accountRepository,
             AccountMapper accountMapper,
             TransactionServiceImpl transactionServiceImpl,
             CustomerClient customerClient,
-            TransactionRecorderService transactionRecorderService) {
+            TransactionRecorderService transactionRecorderService,
+            TransactionMapper transactionMapper) {
+
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
         this.transactionServiceImpl = transactionServiceImpl;
         this.customerClient = customerClient;
         this.transactionRecorderService = transactionRecorderService;
+        this.transactionMapper = transactionMapper;
     }
 
 
@@ -70,6 +78,7 @@ public class AccountServiceImpl implements AccountService {
         account.setCustomerId(customerId);
         account.setBalance(BigDecimal.ZERO);
         account.setStatus(AccountStatus.ACTIVE);
+        account.setDailyWithdrawalLimit(DAILY_WITHDRAWAL_LIMIT);
         account.setCreatedAt(Instant.now());
         account.setAccountNumber(generateIBAN());
 
@@ -138,6 +147,49 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Transactional
+    public DepositResponseDTO deposit(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull DepositRequestDTO request) {
+        // Get account and validate ownership and status
+        String referenceNumber = generateReferenceNumber();
+
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty())
+            throw new BusinessException(String.format("Account %s does not exist", accountId));
+        
+        Account account = accountOpt.get();
+
+        // Validate that the account belongs to the customer and is active
+        if (!account.getCustomerId().equals(customerId))
+            throw new BusinessException(String.format("Account %s does not belong to customer %s", accountId, customerId));
+
+        if (!account.getStatus().equals(AccountStatus.ACTIVE))
+            throw new BusinessException(String.format("Account %s is not active", accountId));
+
+        // Update account balance
+        BigDecimal balanceBefore = account.getBalance();
+        BigDecimal newBalance = balanceBefore.add(request.getAmount());
+        Instant timestamp = Instant.now();
+
+        account.setBalance(newBalance);
+        account.setUpdatedAt(timestamp);
+        accountRepository.save(account);
+
+        // Save transaction record and return response
+        Transaction transaction = Transaction.builder()
+            .accountId(accountId)
+            .type(TransactionType.DEPOSIT)
+            .amount(request.getAmount())
+            .balanceAfter(newBalance)
+            .concept(request.getDescription())
+            .referenceNumber(referenceNumber)
+            .status(TransactionStatus.COMPLETED)
+            .createdAt(timestamp)
+            .build();
+
+        TransactionDTO transactionDTO = transactionServiceImpl.createTransaction(transaction);
+        return transactionMapper.toDepositResponseDTO(transactionDTO, balanceBefore);
+    }
+
+    @Transactional
     public TransactionDTO withdraw(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull WithdrawalRequestDTO request) {
         String referenceNumber = generateReferenceNumber();
 
@@ -165,9 +217,12 @@ public class AccountServiceImpl implements AccountService {
         }
 
         BigDecimal todayWithdrawalTotal = transactionServiceImpl.getTodayWithdrawalTotal(accountId);
+        BigDecimal dailyLimit = account.getDailyWithdrawalLimit();
+
         BigDecimal totalAfter = todayWithdrawalTotal.add(request.getAmount());
-        if (totalAfter.compareTo(account.getDailyWithdrawalLimit()) > 0) {
-            BigDecimal remaining = account.getDailyWithdrawalLimit().subtract(todayWithdrawalTotal);
+        
+        if (totalAfter.compareTo(dailyLimit) > 0) {
+            BigDecimal remaining = dailyLimit.subtract(todayWithdrawalTotal);
             transactionRecorderService.recordFailedTransactionWithdrawal(accountId, request, referenceNumber, "Daily withdrawal limit exceeded");
             throw new BusinessException(String.format("Daily withdrawal limit exceeded. You can withdraw up to %s more today", remaining));
         }

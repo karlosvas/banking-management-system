@@ -37,7 +37,6 @@ public class TransactionServiceImpl implements TransactionService {
         this.transactionMapper = transactionMapper;
     }
 
-    @Override
     public List<TransactionDTO> getTransactionsByAccount(@NonNull UUID accountId) {
         return transactionRepository.findByAccountIdOrderByCreatedAtDesc(accountId)
             .stream()
@@ -45,7 +44,6 @@ public class TransactionServiceImpl implements TransactionService {
             .toList();
     }
 
-    @Override
     public BigDecimal getTodayWithdrawalTotal(@NonNull UUID accountId) {
         LocalDate today = LocalDate.now();
         ZoneId zoneId = ZoneId.systemDefault();
@@ -61,10 +59,6 @@ public class TransactionServiceImpl implements TransactionService {
         );
 
         return total != null ? total : BigDecimal.ZERO;
-    }
-
-    public TransactionDTO createTransaction(@NonNull Transaction transaction) {
-        return transactionMapper.toDTO(transactionRepository.save(transaction));
     }
 
     public TransactionHistoryResponseDTO getTransactionHistory(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull TransactionHistoryRequestDTO filters) {
@@ -99,5 +93,10 @@ public class TransactionServiceImpl implements TransactionService {
             transactionsPage.getTotalElements(),
             transactionsPage.getTotalPages()
         );
+    }
+
+    public TransactionDTO createTransaction(@NonNull Transaction transaction) {
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        return transactionMapper.toDTO(savedTransaction);
     }
 }

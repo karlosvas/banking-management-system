@@ -1,6 +1,8 @@
 package com.bytes.ms_accounts.services.impl;
 
 import com.bytes.ms_accounts.dtos.TransactionDTO;
+import com.bytes.ms_accounts.dtos.DepositRequestDTO;
+import com.bytes.ms_accounts.dtos.DepositResponseDTO;
 import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
 import com.bytes.ms_accounts.dtos.AccountRequestDTO;
 import com.bytes.ms_accounts.dtos.AccountResponseDTO;
@@ -15,6 +17,7 @@ public interface AccountService {
     AccountResponseDTO getAccountById(@NonNull UUID accountId);
     AccountResponseDTO getAccountByNumber(@NonNull String accountNumber);
     AccountResponseDTO getAccountByMe(@NonNull UUID accountId, @NonNull UUID customerId);
+    DepositResponseDTO deposit(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull DepositRequestDTO request);
     TransactionDTO withdraw(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull WithdrawalRequestDTO request);
     void addMoney(@NonNull UUID accountId, @NonNull BigDecimal amount);
 }

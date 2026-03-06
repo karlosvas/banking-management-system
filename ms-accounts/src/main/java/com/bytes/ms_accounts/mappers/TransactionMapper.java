@@ -1,9 +1,11 @@
 package com.bytes.ms_accounts.mappers;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
+import com.bytes.ms_accounts.dtos.DepositResponseDTO;
 import com.bytes.ms_accounts.dtos.TransactionDTO;
 import com.bytes.ms_accounts.dtos.TransactionHistoryItemDTO;
 import com.bytes.ms_accounts.dtos.TransactionHistoryResponseDTO;
@@ -33,4 +35,13 @@ public interface TransactionMapper {
             transactionsPage.getTotalPages()
         );
     }
+
+    @Mapping(target = "transactionId", source = "transactionDTO.id")
+    @Mapping(target = "type", source = "transactionDTO.type")
+    @Mapping(target = "amount", source = "transactionDTO.amount")
+    @Mapping(target = "balanceBefore", source = "balanceBefore")
+    @Mapping(target = "balanceAfter", source = "transactionDTO.balanceAfter")
+    @Mapping(target = "description", source = "transactionDTO.concept")
+    @Mapping(target = "timestamp", source = "transactionDTO.createdAt")
+    DepositResponseDTO toDepositResponseDTO(TransactionDTO transactionDTO, BigDecimal balanceBefore);
 }
