@@ -1,7 +1,6 @@
 package com.bytes.ms_accounts.dtos;
 
 import java.time.Instant;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "DTO representing an error response")

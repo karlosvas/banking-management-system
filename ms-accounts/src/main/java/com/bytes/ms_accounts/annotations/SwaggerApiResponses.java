@@ -11,27 +11,27 @@ import java.lang.annotation.Target;
 import com.bytes.ms_accounts.dtos.SwaggerErrorDTO;
 
 /**
- * Anotación para definir las respuestas de los endpoints de la API. Manejado por Swagger
- * @Target para indicar que la anotación puede ser aplicada a métodos y clases.
- * @Retention para indicar que la anotación estará disponible en tiempo de ejecución.
- * @ApiResponses para definir las respuestas comunes a los endpoints, con sus respectivos códigos de estado, descripciones y esquemas de respuesta.
- * @interface para definir una anotación, se crea la anotacion SwaggerApiResponses.
+ * Annotation to define common API endpoint responses, managed by Swagger.
+ * @Target indicates that this annotation can be applied to methods and classes.
+ * @Retention indicates that this annotation is available at runtime.
+ * @ApiResponses defines shared endpoint responses with status codes, descriptions, and response schemas.
+ * @interface declares the SwaggerApiResponses annotation.
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @ApiResponses(value = {
-    @ApiResponse(responseCode = "400", description = "Solicitud incorrecta", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "401", description = "No autorizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "403", description = "Prohibido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Recurso no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "405", description = "Método no permitido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "408", description = "Tiempo de espera agotado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "409", description = "Conflicto", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "422", description = "Entidad no procesable", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "502", description = "Puerta de enlace no válida (Error de comunicación entre microservicios)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "503", description = "Servicio no disponible", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
-    @ApiResponse(responseCode = "504", description = "Tiempo de espera agotado en la puerta de enlace (El microservicio tardó demasiado en responder)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class)))
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "405", description = "Method not allowed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "408", description = "Request timeout", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "422", description = "Unprocessable entity", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "502", description = "Bad gateway (Inter-service communication error)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "503", description = "Service unavailable", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class))),
+    @ApiResponse(responseCode = "504", description = "Gateway timeout (The microservice took too long to respond)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SwaggerErrorDTO.class)))
 })
 public @interface SwaggerApiResponses {
 }

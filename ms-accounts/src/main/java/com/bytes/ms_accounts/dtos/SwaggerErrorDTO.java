@@ -4,17 +4,17 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "DTO para manejar excepciones")
+@Schema(description = "DTO for exception handling")
 public record SwaggerErrorDTO(
-        @Schema(description = "Mensaje del error", type = "string")
+        @Schema(description = "Error message", type = "string")
         String message,
-        @Schema(description = "Descripción detallada del error", type = "string")
+        @Schema(description = "Detailed error description", type = "string")
         String description,
-        @Schema(description = "Código de error", type = "integer")
+        @Schema(description = "Error code", type = "integer")
         int code,
-        @Schema(description = "Razones adicionales del error", type = "map")
+        @Schema(description = "Additional error reasons", type = "map")
         Map<String, String> reasons,
-        @Schema(description = "Marca de tiempo del error", format = "date-time")
+        @Schema(description = "Error timestamp", format = "date-time")
         LocalDateTime timestamp
 ) {
 }

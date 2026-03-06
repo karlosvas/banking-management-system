@@ -19,8 +19,8 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "Request payload for user login")
 public class LoginRequestDTO {
     
-    @NotBlank(message = "El email es obligatorio")
-    @Email(message = "El formato debe ser válido (ej: usuario@dominio.com)")
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email format must be valid (e.g.: user@domain.com)")
     @Schema(
         description = "User's email address used for login",
         example = "john.doe@example.com"
@@ -28,7 +28,7 @@ public class LoginRequestDTO {
     )
     private String email;
 
-    @NotBlank(message = "La contraseña es obligatoria")
+    @NotBlank(message = "Password is required")
     @Schema(
         description = "User's password (sensitive - write-only field)",
         example = "SecurePass123",

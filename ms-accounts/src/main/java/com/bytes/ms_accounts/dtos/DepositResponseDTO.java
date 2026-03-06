@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import com.bytes.ms_accounts.enums.TransactionType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "DTO representing a deposit response")

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -72,11 +73,15 @@ public class TransactionServiceImpl implements TransactionService {
             Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
+        // Convert LocalDate to Instant (UTC)
+        Instant fromInstant = filters.getFromDate().atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant toInstant = filters.getToDate().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toInstant();
+        
         Page<Transaction> transactionsPage = transactionRepository.findByAccountIdWithFilters(
             accountId,
             filters.getType(),
-            filters.getFromDate(),
-            filters.getToDate(),
+            fromInstant,
+            toInstant,
             TransactionStatus.COMPLETED,
             pageable
         );

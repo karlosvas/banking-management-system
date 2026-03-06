@@ -1,6 +1,6 @@
 package com.bytes.ms_accounts.controllers;
-import java.time.Instant;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -31,6 +31,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
+/**
+ * REST controller for account operations.
+ *
+ * <p>Exposes endpoints to create accounts, query accounts, perform deposits and
+ * withdrawals, and retrieve transaction history for the authenticated customer.</p>
+ */
 @SwaggerApiResponses
 @RestController
 @RequestMapping("/api/accounts")
@@ -126,8 +132,8 @@ public class AccountController {
     public ResponseEntity<TransactionHistoryResponseDTO> getTransactionHistory(
             @PathVariable UUID accountId,
             @RequestParam(required = false) TransactionType type,
-            @RequestParam(required = false) Instant fromDate,
-            @RequestParam(required = false) Instant toDate,
+            @RequestParam(required = false) LocalDate fromDate,
+            @RequestParam(required = false) LocalDate toDate,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             HttpServletRequest httpRequest) {

@@ -87,7 +87,7 @@ class CustomerServiceTest {
 
         assertThatThrownBy(() -> customerService.getCurrentCustomer(email))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Cliente");
+            .hasMessageContaining("Customer not found");
 
         verify(customerRepository).findByEmail(email);
     }

@@ -16,6 +16,9 @@ import javax.crypto.SecretKey;
 import java.util.UUID;
 
 @Component
+/**
+ * JWT helper utilities for token validation and claims extraction.
+ */
 public class JwtUtils {
 
     @Value("${JWT_SECRET_KEY:example-secret-key-for-testing}")
@@ -55,7 +58,13 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-     public UUID getCustomerIdFromRequest(HttpServletRequest request) {
+    /**
+     * Extracts the authenticated customer id from the Authorization header.
+     *
+     * @param request current HTTP request
+     * @return customer id extracted from JWT
+     */
+    public UUID getCustomerIdFromRequest(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         
         if (header == null || !header.startsWith("Bearer "))

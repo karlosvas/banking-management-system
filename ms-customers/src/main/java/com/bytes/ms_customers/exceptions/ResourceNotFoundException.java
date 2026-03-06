@@ -5,7 +5,7 @@ public class ResourceNotFoundException extends RuntimeException {
     private final Object identifier;
 
     public ResourceNotFoundException(String resource, Object identifier) {
-        super(resource + " no encontrado con identificador: " + identifier);
+        super(resource + " not found with identifier: " + identifier);
         this.resource = resource;
         this.identifier = identifier;
     }

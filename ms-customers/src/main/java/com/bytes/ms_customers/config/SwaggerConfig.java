@@ -8,25 +8,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Clase de configuración de Swagger/OpenAPI.
- * Esta clase configura la documentación automática de la API utilizando Swagger.
+ * Swagger/OpenAPI configuration class.
+ * Configures automatic API documentation using Swagger.
  */
 @Configuration
 public class SwaggerConfig {
 
     /**
-     * Configura la documentación general de la API utilizando OpenAPI.
-     * También configura el esquema de seguridad JWT (Bearer Token) que se utilizará para acceder a los endpoints protegidos.
+     * Configures general API documentation using OpenAPI.
+     * Also configures the JWT security scheme (Bearer Token) for protected endpoints.
      *
-     * @return una instancia de {@link OpenAPI} con la configuración de la API.
+     * @return an {@link OpenAPI} instance with API configuration.
      */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("API Banking Management System") // Título de la API
-                        .version("1.0") // Versión de la API
-                        .description("Documentación de la API para el sistema de gestión bancaria. Proporciona endpoints para gestionar clientes, cuentas, transacciones y más.")) // Descripción de la API
+                        .title("API Banking Management System") // API title
+                        .version("1.0") // API version
+                        .description("API documentation for the banking management system. Provides endpoints to manage customers, accounts, transactions, and more.")) // API description
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()

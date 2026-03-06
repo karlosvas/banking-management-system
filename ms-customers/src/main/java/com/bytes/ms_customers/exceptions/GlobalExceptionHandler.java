@@ -21,25 +21,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponseDTO> handleBadCredentials(BadCredentialsException ex) {
         log.warn("Authentication failed: {}", ex.getMessage());
-        return buildResponse(HttpStatus.UNAUTHORIZED, "No autorizado", "El email o la contraseña son incorrectos");
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", "Email or password is incorrect");
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException ex) {
         log.warn("Resource not found: {}", ex.getMessage());
-        return buildResponse(HttpStatus.NOT_FOUND, "No encontrado", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, "Not found", ex.getMessage());
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceAlreadyExists(ResourceAlreadyExistsException ex) {
         log.warn("Resource already exists: {}", ex.getMessage());
-        return buildResponse(HttpStatus.CONFLICT, "Conflicto de datos", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "Data conflict", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex) {
         log.error("Unhandled exception: {}", ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor", "Ocurrió un error inesperado");
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred");
     }
 
     // Manage validation errors from @Valid annotations
@@ -49,25 +49,25 @@ public class GlobalExceptionHandler {
             .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
             .collect(Collectors.joining(", "));
         log.warn("Validation failed: {}", message);
-        return buildResponse(HttpStatus.BAD_REQUEST, "Error de validación", message);
+        return buildResponse(HttpStatus.BAD_REQUEST, "Validation error", message);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleDataIntegrity(DataIntegrityViolationException ex) {
         log.warn("Data integrity violation: {}", ex.getMessage());
-        return buildResponse(HttpStatus.CONFLICT, "Conflicto de datos", "El recurso ya existe");
+        return buildResponse(HttpStatus.CONFLICT, "Data conflict", "Resource already exists");
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponseDTO> handleUnauthorized(UnauthorizedException ex) {
         log.warn("Unauthorized access: {}", ex.getMessage());
-        return buildResponse(HttpStatus.UNAUTHORIZED, "No autorizado", ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage());
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponseDTO> handleForbidden(ForbiddenException ex) {
         log.warn("Forbidden access: {}", ex.getMessage());
-        return buildResponse(HttpStatus.FORBIDDEN, "Acceso denegado", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, "Access denied", ex.getMessage());
     }
 
     // Method to build consistent error responses across all handlers

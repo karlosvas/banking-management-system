@@ -1,6 +1,6 @@
 package com.bytes.ms_accounts.dtos;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import com.bytes.ms_accounts.enums.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -19,10 +19,10 @@ public class TransactionHistoryRequestDTO {
     private TransactionType type;
     
     @Schema(description = "Start date for filtering (ISO 8601 format)", example = "2026-01-01T00:00:00Z")
-    private Instant fromDate;
+    private LocalDate fromDate;
     
     @Schema(description = "End date for filtering (ISO 8601 format)", example = "2026-12-31T23:59:59Z")
-    private Instant toDate;
+    private LocalDate toDate;
     
     @Schema(description = "Page number (0-indexed)", minimum = "0", example = "0", defaultValue = "0")
     private Integer page = 0;

@@ -42,7 +42,7 @@ public class CustomerServiceImpl implements CustomerService {
     public RegisterResponseDTO registerCustomer(@NonNull RegisterRequestDTO dto) {
 
         if (customerRepository.existsByEmail(dto.getEmail()))
-            throw new ResourceAlreadyExistsException("Cliente", "email", dto.getEmail());
+            throw new ResourceAlreadyExistsException("Customer", "email", dto.getEmail());
 
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         
@@ -59,17 +59,17 @@ public class CustomerServiceImpl implements CustomerService {
         Optional<Customer> customer = customerRepository.findByEmail(email);
 
         if(!customer.isPresent())
-            throw new ResourceNotFoundException("Cliente", email);
+            throw new ResourceNotFoundException("Customer", email);
 
         return customerMapper.toCustomerResponseDTO(customer.get());
     }
     
     public LoginResponseDTO login(@NonNull LoginRequestDTO request) {
         Customer customer = customerRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("Email o contraseña incorrectos"));
+                .orElseThrow(() -> new BadCredentialsException("Email or password is incorrect"));
 
         if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
-            throw new BadCredentialsException("Email o contraseña incorrectos");
+            throw new BadCredentialsException("Email or password is incorrect");
         }
 
         String token = jwtUtils.generateToken(
@@ -85,7 +85,7 @@ public class CustomerServiceImpl implements CustomerService {
         Optional<Customer> customer = customerRepository.findById(customerId);
 
         if (!customer.isPresent())
-            throw new ResourceNotFoundException("Cliente", customerId.toString());
+            throw new ResourceNotFoundException("Customer", customerId.toString());
 
         return customerMapper.toCustomerResponseDTO(customer.get());
     }

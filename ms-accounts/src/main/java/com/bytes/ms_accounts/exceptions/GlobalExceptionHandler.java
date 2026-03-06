@@ -21,31 +21,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponseDTO> handleBusiness(BusinessException ex) {
         log.warn("Business rule violation: {}", ex.getMessage());
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Error de negocio", ex.getMessage());
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Business error", ex.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException ex) {
         log.warn("Resource not found: {}", ex.getMessage());
-        return buildResponse(HttpStatus.NOT_FOUND, "No encontrado", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, "Not found", ex.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponseDTO> handleUnauthorized(UnauthorizedException ex) {
         log.warn("Unauthorized access: {}", ex.getMessage());
-        return buildResponse(HttpStatus.UNAUTHORIZED, "No autorizado", ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage());
     }
 
     @ExceptionHandler(AccountOwnershipException.class)
     public ResponseEntity<ErrorResponseDTO> handleAccountOwnership(AccountOwnershipException ex) {
         log.warn("Account ownership violation: {}", ex.getMessage());
-        return buildResponse(HttpStatus.FORBIDDEN, "Acceso denegado", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, "Access denied", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex) {
         log.error("Unhandled exception", ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno", "Ocurrió un error inesperado");
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal error", "An unexpected error occurred");
     }
 
     // Manage validation errors from @Valid annotations
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
             .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
             .collect(Collectors.joining(", "));
         log.warn("Validation failed: {}", message);
-        return buildResponse(HttpStatus.BAD_REQUEST, "Error de validación", message);
+        return buildResponse(HttpStatus.BAD_REQUEST, "Validation error", message);
     }
 
     @ExceptionHandler(FeignException.class)
@@ -63,11 +63,11 @@ public class GlobalExceptionHandler {
         log.error("Feign client error [{}]: {}", ex.status(), ex.getMessage());
         
         if (ex.status() == 404)
-            return buildResponse(HttpStatus.NOT_FOUND, "No encontrado", "El cliente no existe");
+            return buildResponse(HttpStatus.NOT_FOUND, "Not found", "Customer does not exist");
         if (ex.status() == 403)
-            return buildResponse(HttpStatus.FORBIDDEN, "Acceso denegado", "Sin permisos para acceder al recurso");
+            return buildResponse(HttpStatus.FORBIDDEN, "Access denied", "You do not have permission to access this resource");
             
-        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, "Servicio no disponible", "Error comunicándose con ms-customers");
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service unavailable", "Error communicating with ms-customers");
     }
 
     // Method to build consistent error responses across all handlers

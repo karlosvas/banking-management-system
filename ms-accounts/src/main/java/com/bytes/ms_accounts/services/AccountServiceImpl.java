@@ -65,10 +65,10 @@ public class AccountServiceImpl implements AccountService {
 
 
     public AccountResponseDTO createAccount(@NonNull AccountRequestDTO request, @NonNull UUID customerId) {
-        // Validar que el customer existe y está activo
+        // Validate that customer exists and is active
         CustomerResponseDTO customer = customerClient.getCustomerById(customerId);
         if (!customer.status().equals(CustomerStatus.ACTIVE))
-            throw new BusinessException(String.format("Customer %s no está activo", customerId));
+            throw new BusinessException(String.format("Customer %s is not active", customerId));
 
         // Maximum 3 accounts per customer
         if (accountRepository.countByCustomerId(customerId) >= 3)
@@ -99,10 +99,10 @@ public class AccountServiceImpl implements AccountService {
 
     public List<AccountResponseDTO> getAccounts(@NonNull UUID customerUuid) {
 
-        // Si el cliente no existe o no está activo, lanzamos una excepción
+        // If customer does not exist or is not active, throw an exception
         CustomerValidationResponse customerValidation = customerClient.validateCustomer(customerUuid);
         if (!customerValidation.exists())
-            throw new ResourceNotFoundException(String.format("Customer %s no existe", customerUuid));
+            throw new ResourceNotFoundException(String.format("Customer %s does not exist", customerUuid));
 
         if (!customerValidation.isActive())
             throw new BusinessException(String.format("Customer %s is not active", customerUuid));
@@ -117,12 +117,12 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponseDTO getAccountByMe(@NonNull UUID accountId, @NonNull UUID customerId) {
         Optional<Account> accountOpt = accountRepository.findById(accountId);
 
-        // Verificamos que la cuenta exista y que pertenezca al cliente autenticado
+        // Verify account exists and belongs to the authenticated customer
         if (!accountOpt.isPresent())
-            throw new ResourceNotFoundException(String.format("Account %s no existe", accountId));
+            throw new ResourceNotFoundException(String.format("Account %s does not exist", accountId));
 
         if (!accountOpt.get().getCustomerId().equals(customerId))
-            throw new AccountOwnershipException(String.format("Account %s no pertenece al customer %s", accountId, customerId));
+            throw new AccountOwnershipException(String.format("Account %s does not belong to customer %s", accountId, customerId));
 
         return accountMapper.toDTO(accountOpt.get());
     }
@@ -130,9 +130,9 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponseDTO getAccountById(@NonNull UUID accountId) {
         Optional<Account> accountOpt = accountRepository.findById(accountId);
 
-        // Verificamos que la cuenta exista y que pertenezca al cliente autenticado
+        // Verify account exists before returning it
         if (!accountOpt.isPresent())
-            throw new ResourceNotFoundException(String.format("Account %s no existe", accountId));
+            throw new ResourceNotFoundException(String.format("Account %s does not exist", accountId));
 
         return accountMapper.toDTO(accountOpt.get());
     }

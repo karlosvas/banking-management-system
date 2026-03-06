@@ -6,7 +6,7 @@ public class ResourceAlreadyExistsException extends RuntimeException {
     private final String value;
 
     public ResourceAlreadyExistsException(String resource, String field, Object value) {
-        super(resource + " ya existe con " + field + ": " + value);
+        super(resource + " already exists with " + field + ": " + value);
         this.resource = resource;
         this.field = field;
         this.value = String.valueOf(value);

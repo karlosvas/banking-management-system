@@ -16,6 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+/**
+ * Persists failed account transactions in a separate transaction boundary.
+ *
+ * <p>This service is used to keep audit history even when the main business
+ * transaction fails and is rolled back.</p>
+ */
 public class TransactionRecorderService {
 
     private final TransactionServiceImpl transactionServiceImpl;
@@ -24,6 +30,14 @@ public class TransactionRecorderService {
         this.transactionServiceImpl = transactionServiceImpl;
     }
 
+    /**
+     * Records a failed withdrawal attempt as a transaction with FAILED status.
+     *
+     * @param accountId account that attempted the withdrawal
+     * @param request withdrawal payload containing amount
+     * @param referenceNumber generated operation reference
+     * @param reason failure reason stored as concept
+     */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordFailedTransactionWithdrawal(UUID accountId, WithdrawalRequestDTO request, String referenceNumber, String reason) {
         Transaction failed = Transaction.builder()

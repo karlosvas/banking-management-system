@@ -25,6 +25,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
+/**
+ * REST controller for customer operations.
+ *
+ * <p>Handles registration, login, profile retrieval, customer lookup,
+ * and internal customer validation endpoints.</p>
+ */
 @SwaggerApiResponses
 @RestController
 @RequestMapping("/api/customers")
@@ -75,7 +81,7 @@ public class CustomerController {
             @RequestHeader(value = "X-Internal-Service", required = false) String internalService) {
 
         if (!"ms-accounts".equals(internalService))
-            throw new ForbiddenException("Acceso restringido a llamadas internas");
+            throw new ForbiddenException("Access restricted to internal calls");
 
         return ResponseEntity.ok(customerService.validateCustomer(customerId));
     }

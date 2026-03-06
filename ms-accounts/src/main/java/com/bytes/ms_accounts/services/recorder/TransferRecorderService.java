@@ -17,6 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+/**
+ * Records transfer outcomes into transfer and transaction history.
+ *
+ * <p>Failed transfers are saved independently to preserve traceability.
+ * Successful transfers create debit/credit transaction records.</p>
+ */
 public class TransferRecorderService {
     private final TransferRepository transferRepository;
     private final TransactionServiceImpl transactionServiceImpl;
@@ -26,6 +32,12 @@ public class TransferRecorderService {
         this.transactionServiceImpl = transactionServiceImpl;
     }
 
+    /**
+     * Persists a failed transfer using a new transaction.
+     *
+     * @param transfer original transfer request data
+     * @param reason reason for failure
+     */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordFailedTransfer(Transfer transfer, String reason) {
         Transfer failedTransfer = Transfer.builder()
@@ -42,6 +54,9 @@ public class TransferRecorderService {
         transferRepository.save(failedTransfer);
     }
 
+    /**
+     * Records the debit-side transaction for a successful transfer.
+     */
     public void recordSuccessfulTransferDebit(Transfer transfer, UUID sourceAccountId, BigDecimal totalDebit, BigDecimal sourceBalanceAfter, String targetAccountNumber, String beneficiaryName) {
         Transaction debit = Transaction.builder()
             .accountId(sourceAccountId)
@@ -59,6 +74,9 @@ public class TransferRecorderService {
         transactionServiceImpl.createTransaction(debit);
     }
 
+    /**
+     * Records the credit-side transaction for a successful transfer.
+     */
     public void recordSuccessfulTransferCredit(Transfer transfer, UUID targetAccountId, BigDecimal amount, BigDecimal targetBalanceAfter, String sourceAccountNumber) {
         Transaction credit = Transaction.builder()
             .accountId(targetAccountId)

@@ -1,5 +1,8 @@
 package com.bytes.ms_accounts.enums;
 
+/**
+ * Defines supported transaction categories.
+ */
 public enum TransactionType {
     DEPOSIT("Deposit"),
     WITHDRAWAL("Withdrawal"),
@@ -14,6 +17,11 @@ public enum TransactionType {
         this.description = description;
     }
 
+    /**
+     * Returns the display description for the transaction type.
+     *
+     * @return transaction type description
+     */
     public String getDescription() {
         return description;
     }

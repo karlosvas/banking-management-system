@@ -18,6 +18,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import com.bytes.ms_accounts.dtos.TransferReqestDTO;
 
+/**
+ * REST controller for transfer operations.
+ *
+ * <p>Provides endpoints to create transfers between accounts for authenticated users.</p>
+ */
 @SwaggerApiResponses
 @RestController
 @RequestMapping("/api/transfers")

@@ -1,5 +1,8 @@
 package com.bytes.ms_accounts.enums;
 
+/**
+ * Represents the lifecycle state of an account.
+ */
 public enum AccountStatus {
     ACTIVE("Active Account"),
     INACTIVE("Inactive Account"),
@@ -12,6 +15,11 @@ public enum AccountStatus {
         this.description = description;
     }
 
+    /**
+     * Returns the display description for the status.
+     *
+     * @return status description
+     */
     public String getDescription() {
         return description;
     }

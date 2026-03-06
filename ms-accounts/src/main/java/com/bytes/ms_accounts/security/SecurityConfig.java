@@ -17,6 +17,11 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+/**
+ * Security configuration for the accounts microservice.
+ *
+ * <p>Enforces stateless JWT authentication for protected endpoints.</p>
+ */
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;

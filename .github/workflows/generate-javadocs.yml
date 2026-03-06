@@ -1,0 +1,48 @@
+name: Generate Javadocs
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "ms-accounts/**"
+      - "ms-customers/**"
+      - ".github/workflows/generate-javadocs.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  javadocs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - ms-accounts
+          - ms-customers
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Generate Javadocs
+        working-directory: ${{ matrix.service }}
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -DskipTests clean javadoc:javadoc
+
+      - name: Upload Javadocs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: javadocs-${{ matrix.service }}
+          path: ${{ matrix.service }}/target/site/apidocs
+          if-no-files-found: error

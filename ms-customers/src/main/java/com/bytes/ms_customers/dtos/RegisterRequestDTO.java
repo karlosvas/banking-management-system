@@ -21,8 +21,8 @@ import lombok.Data;
 @Schema(description = "Request payload for user registration")
 public class RegisterRequestDTO {
 
-    @NotBlank(message = "El DNI es obligatorio")
-    @Pattern(regexp = "^\\d{8}[A-Z]$", message = "Formato de DNI inválido (ej: 12345678A)")
+    @NotBlank(message = "DNI is required")
+    @Pattern(regexp = "^\\d{8}[A-Z]$", message = "Invalid DNI format (e.g.: 12345678A)")
     @Schema(
         description = "Spanish National ID (DNI) in format: 8 digits + 1 letter",
         example = "12345678A",
@@ -31,7 +31,7 @@ public class RegisterRequestDTO {
     )
     private String dni;
 
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "First name is required")
     @Schema(
         description = "User's first name",
         example = "John",
@@ -41,7 +41,7 @@ public class RegisterRequestDTO {
     )
     private String firstName;
 
-    @NotBlank(message = "Los apellidos son obligatorios")
+    @NotBlank(message = "Last name is required")
     @Schema(
         description = "User's last name",
         example = "Doe",
@@ -51,8 +51,8 @@ public class RegisterRequestDTO {
     )
     private String lastName;
 
-    @NotBlank(message = "El email es obligatorio")
-    @Email(message = "Formato de email inválido")
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     @Schema(
         description = "User's email address (must be unique and valid)",
         example = "john.doe@example.com"
@@ -60,10 +60,10 @@ public class RegisterRequestDTO {
     )
     private String email;
 
-    @NotBlank(message = "La contraseña es obligatoria")
+    @NotBlank(message = "Password is required")
     @Pattern(
         regexp = "^(?=.*[A-Z])(?=.*\\d).{8,}$",
-        message = "La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número"
+        message = "Password must contain at least 8 characters, one uppercase letter, and one number"
     )
     @Schema(
         description = "User's password (minimum 8 characters, at least 1 uppercase letter and 1 digit) - write-only",
@@ -76,7 +76,7 @@ public class RegisterRequestDTO {
 
     @Pattern(
         regexp = "^\\+?\\d{7,15}$",
-        message = "Formato de teléfono inválido (ej: +34123456789)"
+        message = "Invalid phone format (e.g.: +34123456789)"
     )
     @Schema(
         description = "User's phone number (7-15 digits, optional country code with +)",

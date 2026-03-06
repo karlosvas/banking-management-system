@@ -18,6 +18,11 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+/**
+ * Security configuration for the customers microservice.
+ *
+ * <p>Allows public auth/docs endpoints and protects the rest using JWT.</p>
+ */
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -29,29 +34,29 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                // Register y login
+                                // Register and login
                                 "/api/customers/register",
                                 "/api/customers/login",
-                                // Swager
+                                // Swagger
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        // Solo para llamadas internas
+                        // Internal calls only
                         .requestMatchers("/api/customers/{customerId}/validate").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) -> {
-                        // Si el cliente no se autentica, devolvemos un 401 con un mensaje JSON
+                        // If the client is not authenticated, return 401 with a JSON message
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json");
                         response.getWriter().write("{\"error\": \"Unauthorized\"}");
                     })
                     .accessDeniedHandler((request, response, accessDeniedException) -> {
-                        // Si el cliente se autentica pero no tiene permisos, devolvemos un 403 con un mensaje JSON
+                        // If the client is authenticated but lacks permissions, return 403 with a JSON message
                         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         response.setContentType("application/json");
                         response.getWriter().write("{\"error\": \"Forbidden\"}");
