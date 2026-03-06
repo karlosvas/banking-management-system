@@ -30,6 +30,7 @@ import com.bytes.ms_accounts.mappers.AccountMapper;
 import com.bytes.ms_accounts.models.Account;
 import com.bytes.ms_accounts.models.Transaction;
 import com.bytes.ms_accounts.repositories.AccountRepository;
+import com.bytes.ms_accounts.services.recorder.TransactionRecorderService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AccountServiceImpl Tests")

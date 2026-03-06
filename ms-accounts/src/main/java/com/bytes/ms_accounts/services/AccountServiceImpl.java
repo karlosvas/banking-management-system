@@ -28,6 +28,7 @@ import com.bytes.ms_accounts.models.Account;
 import com.bytes.ms_accounts.models.Transaction;
 import com.bytes.ms_accounts.repositories.AccountRepository;
 import com.bytes.ms_accounts.services.impl.AccountService;
+import com.bytes.ms_accounts.services.recorder.TransactionRecorderService;
 import com.bytes.ms_accounts.clients.CustomerClient;
 
 @Service
@@ -104,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
                                         .toList();
     }
 
-    public AccountResponseDTO getAccountById(@NonNull UUID accountId, @NonNull UUID customerId) {
+    public AccountResponseDTO getAccountByMe(@NonNull UUID accountId, @NonNull UUID customerId) {
         Optional<Account> accountOpt = accountRepository.findById(accountId);
 
         // Verificamos que la cuenta exista y que pertenezca al cliente autenticado
@@ -117,30 +118,40 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.toDTO(accountOpt.get());
     }
 
+    public AccountResponseDTO getAccountById(@NonNull UUID accountId) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+
+        // Verificamos que la cuenta exista y que pertenezca al cliente autenticado
+        if (!accountOpt.isPresent())
+            throw new ResourceNotFoundException(String.format("Account %s no existe", accountId));
+
+        return accountMapper.toDTO(accountOpt.get());
+    }
+
     @Transactional
     public TransactionDTO withdraw(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull WithdrawalRequestDTO request) {
         String referenceNumber = generateReferenceNumber();
 
         Optional<Account> accountOpt = accountRepository.findById(accountId);
         if (accountOpt.isEmpty()) {
-            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Account does not exist");
+            transactionRecorderService.recordFailedTransactionWithdrawal(accountId, request, referenceNumber, "Account does not exist");
             throw new BusinessException(String.format("Account %s does not exist", accountId));
         }
 
         Account account = accountOpt.get();
 
         if (!account.getCustomerId().equals(customerId)) {
-            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Account does not belong to customer");
+            transactionRecorderService.recordFailedTransactionWithdrawal(accountId, request, referenceNumber, "Account does not belong to customer");
             throw new BusinessException(String.format("Account %s does not belong to customer %s", accountId, customerId));
         }
 
         if (!account.getStatus().equals(AccountStatus.ACTIVE)) {
-            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Account is not active");
+            transactionRecorderService.recordFailedTransactionWithdrawal(accountId, request, referenceNumber, "Account is not active");
             throw new BusinessException(String.format("Account %s is not active", accountId));
         }
 
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
-            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Insufficient balance");
+            transactionRecorderService.recordFailedTransactionWithdrawal(accountId, request, referenceNumber, "Insufficient balance");
             throw new BusinessException(String.format("Insufficient balance. Available: %s, Requested: %s", account.getBalance(), request.getAmount()));
         }
 
@@ -148,7 +159,7 @@ public class AccountServiceImpl implements AccountService {
         BigDecimal totalAfter = todayWithdrawalTotal.add(request.getAmount());
         if (totalAfter.compareTo(account.getDailyWithdrawalLimit()) > 0) {
             BigDecimal remaining = account.getDailyWithdrawalLimit().subtract(todayWithdrawalTotal);
-            transactionRecorderService.recordFailedTransaction(accountId, request, referenceNumber, "Daily withdrawal limit exceeded");
+            transactionRecorderService.recordFailedTransactionWithdrawal(accountId, request, referenceNumber, "Daily withdrawal limit exceeded");
             throw new BusinessException(String.format("Daily withdrawal limit exceeded. You can withdraw up to %s more today", remaining));
         }
 
@@ -180,6 +191,32 @@ public class AccountServiceImpl implements AccountService {
         } while (accountRepository.existsByAccountNumber(actual));
 
         return actual;
+    }
+
+    public void addMoney(@NonNull UUID accountId, @NonNull BigDecimal amount) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+
+        if (!accountOpt.isPresent())
+            throw new ResourceNotFoundException(String.format("Account %s does not exist", accountId));
+
+        Account account = accountOpt.get();
+        BigDecimal newBalance = account.getBalance().add(amount);
+        account.setBalance(newBalance);
+        account.setUpdatedAt(Instant.now());
+        accountRepository.save(account);
+    }
+
+    public void subtractMoney(@NonNull UUID accountId, @NonNull BigDecimal amount) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (!accountOpt.isPresent())
+            throw new ResourceNotFoundException(String.format("Account %s does not exist", accountId));
+        Account account = accountOpt.get();
+        BigDecimal newBalance = account.getBalance().subtract(amount);
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0)
+            throw new BusinessException(String.format("Insufficient balance in account %s", accountId));
+        account.setBalance(newBalance);
+        account.setUpdatedAt(Instant.now());
+        accountRepository.save(account);
     }
 
 }

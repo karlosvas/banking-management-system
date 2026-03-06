@@ -67,16 +67,16 @@ public class AccountController {
 
     @Operation(
         summary = "Get account by ID",
-        description = "Retrieves a specific bank account by its ID for the authenticated customer"
+        description = "Retrieves a specific bank account by its ID. This endpoint requires the account to belong to the authenticated customer and is used for account management operations."
     )
     @ApiResponse(responseCode = "200", description = "Account retrieved successfully")
     @GetMapping("/{accountId}")
-    public ResponseEntity<AccountResponseDTO> getAccountById(@PathVariable UUID accountId, HttpServletRequest httpRequest) {
+    public ResponseEntity<AccountResponseDTO> getAccountByMe(@PathVariable UUID accountId, HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
-        AccountResponseDTO account = accountService.getAccountById(accountId, customerId);
+        AccountResponseDTO account = accountService.getAccountByMe(accountId, customerId);
         return ResponseEntity.ok().body(account);
     }
-
+  
     @Operation(
         summary = "Withdraw money from account",
         description = "Withdraws money from the authenticated customer's account. Validates sufficient balance and daily withdrawal limit."
@@ -92,5 +92,4 @@ public class AccountController {
         TransactionDTO transaction = accountService.withdraw(accountId, customerId, request);
         return ResponseEntity.ok().body(transaction);
     }
-    
 }
