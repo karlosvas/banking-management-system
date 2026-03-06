@@ -49,6 +49,16 @@ public class CustomerController {
     public ResponseEntity<CustomerResponseDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(customerService.getCurrentCustomer(userDetails.getUsername()));
     }
+
+    @Operation(
+        summary = "Get customer by ID",
+        description = "Retrieves a customer's information by their unique identifier (UUID)"
+    )
+    @ApiResponse(responseCode = "200", description = "Customer retrieved successfully")
+    @GetMapping("/{customerId}")
+    public ResponseEntity<CustomerResponseDTO> getCustomerById(@PathVariable UUID customerId) {
+        return ResponseEntity.ok(customerService.getCustomerById(customerId));
+    }
     
     @Operation(summary = "Login a customer and obtain JWT token, returns a JWT token if credentials are valid")
     @ApiResponse(responseCode = "200", description = "Customer logged in successfully")

@@ -42,7 +42,7 @@ public class AccountController {
         description = "Creates a new bank account for the authenticated customer"
     )
     @ApiResponse(responseCode = "201", description = "Account created successfully")
-    @PutMapping
+    @PostMapping
     public ResponseEntity<AccountResponseDTO> createAccount(@Valid @RequestBody AccountRequestDTO request, HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
 

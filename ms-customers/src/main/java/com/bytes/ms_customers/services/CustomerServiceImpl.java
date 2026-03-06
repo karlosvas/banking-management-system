@@ -52,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
         );
         Customer saved = customerRepository.save(mapped);
 
-        return customerMapper.toRegisterResponse(saved);
+        return customerMapper.toRegisterResponseDTO(saved);
     }
 
     public CustomerResponseDTO getCurrentCustomer(@NonNull String email) {
@@ -61,7 +61,7 @@ public class CustomerServiceImpl implements CustomerService {
         if(!customer.isPresent())
             throw new ResourceNotFoundException("Cliente", email);
 
-        return customerMapper.toCustomerDTO(customer.get());
+        return customerMapper.toCustomerResponseDTO(customer.get());
     }
     
     public LoginResponseDTO login(@NonNull LoginRequestDTO request) {
@@ -79,6 +79,15 @@ public class CustomerServiceImpl implements CustomerService {
         );
 
         return new LoginResponseDTO(token);
+    }
+
+    public CustomerResponseDTO getCustomerById(UUID customerId) {
+        Optional<Customer> customer = customerRepository.findById(customerId);
+
+        if (!customer.isPresent())
+            throw new ResourceNotFoundException("Cliente", customerId.toString());
+
+        return customerMapper.toCustomerResponseDTO(customer.get());
     }
 
     public CustomerValidationResponse validateCustomer(@NonNull UUID customerId) {

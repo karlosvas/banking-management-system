@@ -28,6 +28,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response, 
                                     FilterChain filterChain) throws ServletException, IOException {
         
+        // Check for internal service call
+        String internalServiceHeader = request.getHeader("X-Internal-Service");
+        if (internalServiceHeader != null && !internalServiceHeader.isEmpty()) {
+            // Allow internal service calls without JWT validation
+            // Create a simple authentication token for internal services
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                "internal-service", null, java.util.Collections.emptyList()
+            );
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

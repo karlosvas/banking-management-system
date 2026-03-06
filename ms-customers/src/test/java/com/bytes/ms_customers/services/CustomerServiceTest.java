@@ -50,7 +50,7 @@ class CustomerServiceTest {
 
         when(customerMapper.toCustomer(request, CustomerStatus.ACTIVE)).thenReturn(customer);
         when(customerRepository.save(customer)).thenReturn(customer);
-        when(customerMapper.toRegisterResponse(customer)).thenReturn(expectedResponse);
+        when(customerMapper.toRegisterResponseDTO(customer)).thenReturn(expectedResponse);
 
         RegisterResponseDTO result = customerService.registerCustomer(request);
 
@@ -67,7 +67,7 @@ class CustomerServiceTest {
         CustomerResponseDTO expectedDTO = createCustomerResponseDTO();
 
         when(customerRepository.findByEmail(email)).thenReturn(Optional.of(customer));
-        when(customerMapper.toCustomerDTO(customer)).thenReturn(expectedDTO);
+        when(customerMapper.toCustomerResponseDTO(customer)).thenReturn(expectedDTO);
 
         CustomerResponseDTO result = customerService.getCurrentCustomer(email);
 
@@ -76,7 +76,7 @@ class CustomerServiceTest {
         assertThat(result.firstName()).isEqualTo("Juan");
 
         verify(customerRepository).findByEmail(email);
-        verify(customerMapper).toCustomerDTO(customer);
+        verify(customerMapper).toCustomerResponseDTO(customer);
     }
 
     @Test
