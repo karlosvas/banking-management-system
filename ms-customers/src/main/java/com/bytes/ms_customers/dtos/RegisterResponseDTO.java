@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
 import com.bytes.ms_customers.enums.CustomerStatus;
-import lombok.Builder;
-import lombok.Data;
 
 /**
  * RegisterResponseDTO - Response object after successful user registration
@@ -16,38 +14,36 @@ import lombok.Data;
  * - accessMode: READ_ONLY for all fields (response-only)
  * - allowableValues: For enum fields
  */
-@Data
-@Builder
 @Schema(description = "Response payload containing newly registered customer information")
-public class RegisterResponseDTO {
+public record RegisterResponseDTO (
     
     @Schema(
         description = "Unique identifier assigned to the newly registered customer",
         example = "550e8400-e29b-41d4-a716-446655440000",
         accessMode = Schema.AccessMode.READ_ONLY
     )
-    private UUID id;
+    UUID id,
     
     @Schema(
         description = "Customer's DNI (Spanish National ID)",
         example = "12345678A",
         accessMode = Schema.AccessMode.READ_ONLY
     )
-    private String dni;
+     String dni,
     
     @Schema(
         description = "Customer's full name (concatenated first and last name)",
         example = "John Doe",
         accessMode = Schema.AccessMode.READ_ONLY
     )
-    private String fullName;
+    String fullName,
     
     @Schema(
         description = "Customer's registered email address",
         example = "john.doe@example.com",
         accessMode = Schema.AccessMode.READ_ONLY
     )
-    private String email;
+    String email,
     
     @Schema(
         description = "Initial status of the newly registered customer account",
@@ -55,7 +51,7 @@ public class RegisterResponseDTO {
         accessMode = Schema.AccessMode.READ_ONLY,
         allowableValues = {"ACTIVE", "INACTIVE", "SUSPENDED", "DELETED"}
     )
-    private CustomerStatus status;
+    CustomerStatus status,
     
     @Schema(
         description = "Timestamp when the customer account was created",
@@ -63,5 +59,5 @@ public class RegisterResponseDTO {
         accessMode = Schema.AccessMode.READ_ONLY,
         format = "date-time"
     )
-    private Instant createdAt;
-}
+    Instant createdAt
+){}

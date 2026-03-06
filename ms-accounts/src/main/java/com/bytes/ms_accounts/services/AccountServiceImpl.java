@@ -8,17 +8,20 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
-import com.bytes.ms_accounts.dtos.AccountDTO;
-import com.bytes.ms_accounts.dtos.CustomerDTO;
+import com.bytes.ms_accounts.dtos.AccountRequestDTO;
+import com.bytes.ms_accounts.dtos.AccountResponseDTO;
+import com.bytes.ms_accounts.dtos.CustomerResponseDTO;
 import com.bytes.ms_accounts.dtos.CustomerValidationResponse;
-import com.bytes.ms_accounts.dtos.RequestAccountDTO;
 import com.bytes.ms_accounts.enums.CustomerStatus;
 import com.bytes.ms_accounts.enums.StatusType;
+import com.bytes.ms_accounts.exceptions.AccountOwnershipException;
 import com.bytes.ms_accounts.exceptions.BusinessException;
+import com.bytes.ms_accounts.exceptions.ResourceNotFoundException;
 import com.bytes.ms_accounts.mappers.AccountMapper;
 import com.bytes.ms_accounts.models.Account;
 import com.bytes.ms_accounts.repositories.AccountRepository;
 import com.bytes.ms_accounts.services.impl.AccountService;
+import org.springframework.lang.NonNull;
 import com.bytes.ms_accounts.clients.CustomerClient;
 
 @Service
@@ -37,10 +40,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    public AccountDTO createAccount(RequestAccountDTO request, UUID customerId) {
+    public AccountResponseDTO createAccount(@NonNull AccountRequestDTO request, @NonNull UUID customerId) {
         // Validar que el customer existe y está activo
-        CustomerDTO customer = customerClient.getCustomerById(customerId);
-        if (!customer.getStatus().equals(CustomerStatus.ACTIVE))
+        CustomerResponseDTO customer = customerClient.getCustomerById(customerId);
+        if (!customer.status().equals(CustomerStatus.ACTIVE))
             throw new BusinessException(String.format("Customer %s no está activo", customerId));
 
         // Máximo 3 cuentas por cliente
@@ -69,12 +72,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    public List<AccountDTO> getAccounts(UUID customerUuid) {
+    public List<AccountResponseDTO> getAccounts(@NonNull UUID customerUuid) {
 
         // Si el cliente no existe o no está activo, lanzamos una excepción
         CustomerValidationResponse customerValidation = customerClient.validateCustomer(customerUuid);
         if (!customerValidation.exists())
-            throw new BusinessException(String.format("Customer %s no existe", customerUuid));
+            throw new ResourceNotFoundException(String.format("Customer %s no existe", customerUuid));
+
         if (!customerValidation.isActive())
             throw new BusinessException(String.format("Customer %s no está activo", customerUuid));
         
@@ -85,15 +89,15 @@ public class AccountServiceImpl implements AccountService {
                                         .toList();
     }
 
-    public AccountDTO getAccountById(UUID accountId, UUID customerId) {
+    public AccountResponseDTO getAccountById(@NonNull UUID accountId, @NonNull UUID customerId) {
         Optional<Account> account = accountRepository.findById(accountId);
 
         // Verificamos que la cuenta exista y que pertenezca al cliente autenticado
         if (!account.isPresent())
-            throw new BusinessException(String.format("Account %s no existe", accountId));
+            throw new ResourceNotFoundException(String.format("Account %s no existe", accountId));
 
         if (!account.get().getCustomerId().equals(customerId))
-            throw new BusinessException(String.format("Account %s no pertenece al customer %s", accountId, customerId));
+            throw new AccountOwnershipException(String.format("Account %s no pertenece al customer %s", accountId, customerId));
 
         return accountMapper.toDTO(account.get());
     }
