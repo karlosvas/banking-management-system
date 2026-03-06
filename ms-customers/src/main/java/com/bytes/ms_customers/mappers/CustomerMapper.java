@@ -19,7 +19,7 @@ public interface CustomerMapper {
     Customer toCustomer(RegisterRequestDTO dto, CustomerStatus status);
 
     @Mapping(target = "fullName", expression = "java(customer.getFirstName() + \" \" + customer.getLastName())")
-    RegisterResponseDTO toRegisterResponse(Customer customer);
+    RegisterResponseDTO toRegisterResponseDTO(Customer customer);
 
-    CustomerResponseDTO toCustomerDTO(Customer customer);
+    CustomerResponseDTO toCustomerResponseDTO(Customer customer);
 }

@@ -16,6 +16,7 @@ import com.bytes.ms_customers.dtos.LoginResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerStatus;
+import com.bytes.ms_customers.exceptions.ResourceAlreadyExistsException;
 import com.bytes.ms_customers.exceptions.ResourceNotFoundException;
 import com.bytes.ms_customers.mappers.CustomerMapper;
 import com.bytes.ms_customers.models.Customer;
@@ -39,6 +40,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public RegisterResponseDTO registerCustomer(@NonNull RegisterRequestDTO dto) {
+
+        if (customerRepository.existsByEmail(dto.getEmail()))
+            throw new ResourceAlreadyExistsException("Cliente", "email", dto.getEmail());
+
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         
         Customer mapped = Objects.requireNonNull(
@@ -47,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
         );
         Customer saved = customerRepository.save(mapped);
 
-        return customerMapper.toRegisterResponse(saved);
+        return customerMapper.toRegisterResponseDTO(saved);
     }
 
     public CustomerResponseDTO getCurrentCustomer(@NonNull String email) {
@@ -56,7 +61,7 @@ public class CustomerServiceImpl implements CustomerService {
         if(!customer.isPresent())
             throw new ResourceNotFoundException("Cliente", email);
 
-        return customerMapper.toCustomerDTO(customer.get());
+        return customerMapper.toCustomerResponseDTO(customer.get());
     }
     
     public LoginResponseDTO login(@NonNull LoginRequestDTO request) {
@@ -74,6 +79,15 @@ public class CustomerServiceImpl implements CustomerService {
         );
 
         return new LoginResponseDTO(token);
+    }
+
+    public CustomerResponseDTO getCustomerById(UUID customerId) {
+        Optional<Customer> customer = customerRepository.findById(customerId);
+
+        if (!customer.isPresent())
+            throw new ResourceNotFoundException("Cliente", customerId.toString());
+
+        return customerMapper.toCustomerResponseDTO(customer.get());
     }
 
     public CustomerValidationResponse validateCustomer(@NonNull UUID customerId) {

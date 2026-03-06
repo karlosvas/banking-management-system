@@ -75,7 +75,7 @@ public class TransferServiceImpl implements TransferService {
         }
 
         // Destination account only needs to exist; ownership may be different.
-        AccountResponseDTO targetAccount = accountService.getAccountById(transferReqestDTO.getDestinationAccountNumber());
+        AccountResponseDTO targetAccount = accountService.getAccountByNumber(transferReqestDTO.getDestinationAccountNumber());
         
         // Total debit includes fee because fee is charged to the sender.
         String beneficiaryName = null;

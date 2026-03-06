@@ -8,7 +8,6 @@ import com.bytes.ms_customers.dtos.LoginResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.exceptions.ForbiddenException;
-import com.bytes.ms_customers.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,10 +47,17 @@ public class CustomerController {
     @ApiResponse(responseCode = "200", description = "Current customer data obtained successfully")
     @GetMapping("/me")
     public ResponseEntity<CustomerResponseDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null)
-            throw new UnauthorizedException("No autenticado");
-
         return ResponseEntity.ok(customerService.getCurrentCustomer(userDetails.getUsername()));
+    }
+
+    @Operation(
+        summary = "Get customer by ID",
+        description = "Retrieves a customer's information by their unique identifier (UUID)"
+    )
+    @ApiResponse(responseCode = "200", description = "Customer retrieved successfully")
+    @GetMapping("/{customerId}")
+    public ResponseEntity<CustomerResponseDTO> getCustomerById(@PathVariable UUID customerId) {
+        return ResponseEntity.ok(customerService.getCustomerById(customerId));
     }
     
     @Operation(summary = "Login a customer and obtain JWT token, returns a JWT token if credentials are valid")

@@ -30,6 +30,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, "No encontrado", ex.getMessage());
     }
 
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleResourceAlreadyExists(ResourceAlreadyExistsException ex) {
+        log.warn("Resource already exists: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "Conflicto de datos", ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex) {
         log.error("Unhandled exception: {}", ex);
