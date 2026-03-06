@@ -45,7 +45,7 @@ public class TransferRecorderService {
     public void recordSuccessfulTransferDebit(Transfer transfer, UUID sourceAccountId, BigDecimal totalDebit, BigDecimal sourceBalanceAfter, String targetAccountNumber, String beneficiaryName) {
         Transaction debit = Transaction.builder()
             .accountId(sourceAccountId)
-            .type(TransactionType.TRANSFER)
+            .type(TransactionType.TRANSFER_OUT)
             .amount(totalDebit)
             .balanceAfter(sourceBalanceAfter)
             .concept("Outgoing transfer: " + transfer.getConcept())
@@ -62,7 +62,7 @@ public class TransferRecorderService {
     public void recordSuccessfulTransferCredit(Transfer transfer, UUID targetAccountId, BigDecimal amount, BigDecimal targetBalanceAfter, String sourceAccountNumber) {
         Transaction credit = Transaction.builder()
             .accountId(targetAccountId)
-            .type(TransactionType.TRANSFER)
+            .type(TransactionType.TRANSFER_IN)
             .amount(amount)
             .balanceAfter(targetBalanceAfter)
             .concept("Incoming transfer: " + transfer.getConcept())

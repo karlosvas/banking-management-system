@@ -227,5 +227,4 @@ public class AccountServiceImpl implements AccountService {
         account.setUpdatedAt(Instant.now());
         accountRepository.save(account);
     }
-
 }
