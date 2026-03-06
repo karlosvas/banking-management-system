@@ -1,4 +1,5 @@
 package com.bytes.ms_accounts.controllers;
+import java.time.Instant;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,15 +11,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.bytes.ms_accounts.annotations.SwaggerApiResponses;
 import com.bytes.ms_accounts.dtos.TransactionDTO;
+import com.bytes.ms_accounts.dtos.TransactionHistoryRequestDTO;
+import com.bytes.ms_accounts.dtos.TransactionHistoryResponseDTO;
 import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
 import com.bytes.ms_accounts.dtos.AccountResponseDTO;
 import com.bytes.ms_accounts.exceptions.UnauthorizedException;
 import com.bytes.ms_accounts.dtos.AccountRequestDTO;
+import com.bytes.ms_accounts.enums.TransactionType;
 import com.bytes.ms_accounts.security.JwtUtils;
 import com.bytes.ms_accounts.services.AccountServiceImpl;
+import com.bytes.ms_accounts.services.TransactionServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,10 +36,12 @@ import jakarta.validation.Valid;
 public class AccountController {
 
     private final AccountServiceImpl accountService;
+    private final TransactionServiceImpl transactionService;
     private final JwtUtils jwtUtils;
 
-    public AccountController(AccountServiceImpl accountService, JwtUtils jwtUtils) {
+    public AccountController(AccountServiceImpl accountService, TransactionServiceImpl transactionService, JwtUtils jwtUtils) {
         this.accountService = accountService;
+        this.transactionService = transactionService;
         this.jwtUtils = jwtUtils;
     }
 
@@ -91,5 +99,32 @@ public class AccountController {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
         TransactionDTO transaction = accountService.withdraw(accountId, customerId, request);
         return ResponseEntity.ok().body(transaction);
+    }
+
+    @Operation(
+        summary = "Get transaction history",
+        description = "Retrieves paginated transaction history for the authenticated customer's account with optional filtering by transaction type and date range"
+    )
+    @ApiResponse(responseCode = "200", description = "Transaction history retrieved successfully")
+    @GetMapping("/{accountId}/transactions")
+    public ResponseEntity<TransactionHistoryResponseDTO> getTransactionHistory(
+            @PathVariable UUID accountId,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) Instant fromDate,
+            @RequestParam(required = false) Instant toDate,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            HttpServletRequest httpRequest) {
+        
+        UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
+        TransactionHistoryRequestDTO filters = TransactionHistoryRequestDTO.builder()
+            .type(type)
+            .fromDate(fromDate)
+            .toDate(toDate)
+            .page(page)
+            .size(size)
+            .build();
+
+        return ResponseEntity.ok().body(transactionService.getTransactionHistory(accountId, customerId, filters));
     }
 }
