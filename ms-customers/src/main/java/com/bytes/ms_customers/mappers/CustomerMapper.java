@@ -2,7 +2,6 @@ package com.bytes.ms_customers.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
 import com.bytes.ms_customers.dtos.CustomerResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;

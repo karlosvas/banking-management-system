@@ -7,7 +7,9 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import com.bytes.ms_accounts.exceptions.AuthException;
+
+import com.bytes.ms_accounts.exceptions.UnauthorizedException;
+
 import java.security.Key;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
@@ -57,7 +59,7 @@ public class JwtUtils {
         String header = request.getHeader("Authorization");
         
         if (header == null || !header.startsWith("Bearer "))
-            throw new AuthException("Invalid or missing Authorization header");
+            throw new UnauthorizedException("Invalid or missing Authorization header");
         
         String token = header.substring(7);
         return extractCustomerId(token);

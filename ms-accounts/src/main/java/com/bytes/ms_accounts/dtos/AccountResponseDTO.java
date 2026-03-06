@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Currency;
 import java.util.UUID;
-import com.bytes.ms_accounts.enums.StatusType;
+import com.bytes.ms_accounts.enums.AccountStatus;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "DTO representing a bank account")
@@ -24,7 +25,7 @@ public record AccountResponseDTO (
     @Schema(description = "Account alias or custom name", minLength = 1, maxLength = 50, example = "My checking account")
     String alias,
     @Schema(description = "Account status", accessMode = Schema.AccessMode.READ_ONLY)
-    StatusType status,
+    AccountStatus status,
     @Schema(description = "Account creation date", accessMode = Schema.AccessMode.READ_ONLY)
     Instant createdAt
 ){}

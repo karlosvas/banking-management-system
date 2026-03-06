@@ -3,8 +3,8 @@ package com.bytes.ms_accounts.models;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+import com.bytes.ms_accounts.enums.AccountStatus;
 import com.bytes.ms_accounts.enums.AccountType;
-import com.bytes.ms_accounts.enums.StatusType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,21 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/*
-// Account
-// Campo Tipo Descripción
-// id UUID Identificador único
-// accountNumber String IBAN (único)
-// customerId UUID ID del cliente (referencia a ms-customers)
-// accountType Enum Tipo de cuenta
-// currency String Moneda (EUR, USD)
-// balance BigDecimal Saldo actual
-// alias String Nombre personalizado
-// status Enum Estado de la cuenta
-// dailyWithdrawalLimit BigDecimal Límite diario de retiro
-// createdAt Instant Fecha de creación
-// updatedAt Instant Fecha de actualización
-//  */
 @Entity
 @Table(name = "accounts")
 @Data
@@ -63,7 +48,7 @@ public class Account {
 
     @Column
     @Enumerated(EnumType.STRING)
-    public StatusType status;
+    public AccountStatus status;
 
     @Column
     public BigDecimal dailyWithdrawalLimit;

@@ -18,13 +18,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import com.bytes.ms_customers.dtos.CustomerDTO;
+
+import com.bytes.ms_customers.dtos.CustomerResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerStatus;
 import com.bytes.ms_customers.security.JwtUtils;
 import com.bytes.ms_customers.security.SecurityConfig;
-import com.bytes.ms_customers.services.CustomerService;
+import com.bytes.ms_customers.services.CustomerServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = CustomerController.class)
@@ -35,7 +36,7 @@ class CustomerControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private CustomerService customerService;
+    private CustomerServiceImpl customerService;
 
     @MockitoBean
     private PasswordEncoder passwordEncoder;
@@ -137,7 +138,7 @@ class CustomerControllerTest {
     @WithMockUser(username = "juan.perez@example.com")
     void getCurrentCustomer_WithValidAuthentication_Returns200WithCustomerData() throws Exception {
         String email = "juan.perez@example.com";
-        CustomerDTO expectedDto = buildValidCustomerDTO();
+        CustomerResponseDTO expectedDto = buildValidCustomerDTO();
         when(customerService.getCurrentCustomer(email)).thenReturn(expectedDto);
 
         mockMvc.perform(get("/api/customers/me")
@@ -157,18 +158,17 @@ class CustomerControllerTest {
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
-    private CustomerDTO buildValidCustomerDTO() {
-        return CustomerDTO.builder()
-            .id(UUID.randomUUID())
-            .dni("12345678A")
-            .firstName("Juan")
-            .lastName("Pérez")
-            .email("juan.perez@example.com")
-            .phone("+34123456789")
-            .address("Calle Principal 123")
-            .status(CustomerStatus.ACTIVE)
-            .createdAt(Instant.now().toString())
-            .build();
+    private CustomerResponseDTO buildValidCustomerDTO() {
+        return new CustomerResponseDTO(
+            UUID.randomUUID(),
+            "12345678A",
+            "Juan",
+            "Pérez",
+            "juan.perez@example.com",
+            "+34123456789",
+            "Calle Principal 123",
+            CustomerStatus.ACTIVE,
+            Instant.now().toString());
     }
 
     private RegisterRequestDTO buildValidRequest() {

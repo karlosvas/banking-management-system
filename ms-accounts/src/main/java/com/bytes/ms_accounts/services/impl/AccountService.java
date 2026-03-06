@@ -1,5 +1,7 @@
 package com.bytes.ms_accounts.services.impl;
 
+import com.bytes.ms_accounts.dtos.TransactionDTO;
+import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
 import com.bytes.ms_accounts.dtos.AccountRequestDTO;
 import com.bytes.ms_accounts.dtos.AccountResponseDTO;
 import org.springframework.lang.NonNull;
@@ -10,4 +12,5 @@ public interface AccountService {
     AccountResponseDTO createAccount(@NonNull AccountRequestDTO request, @NonNull UUID customerId);
     List<AccountResponseDTO> getAccounts(@NonNull UUID customerUuid);
     AccountResponseDTO getAccountById(@NonNull UUID accountId, @NonNull UUID customerId);
+    TransactionDTO withdraw(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull WithdrawalRequestDTO request);
 }

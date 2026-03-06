@@ -1,7 +1,7 @@
 package com.bytes.ms_customers.controllers;
 
 import com.bytes.ms_customers.anotations.SwaggerApiResponses;
-import com.bytes.ms_customers.dtos.CustomerDTO;
+import com.bytes.ms_customers.dtos.CustomerResponseDTO;
 import com.bytes.ms_customers.dtos.CustomerValidationResponse;
 import com.bytes.ms_customers.dtos.LoginRequestDTO;
 import com.bytes.ms_customers.dtos.LoginResponseDTO;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.bytes.ms_customers.services.CustomerService;
+import com.bytes.ms_customers.services.CustomerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -31,9 +31,9 @@ import java.util.UUID;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    private final CustomerService customerService;
+    private final CustomerServiceImpl customerService;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerServiceImpl customerService) {
         this.customerService = customerService;
     }
 
@@ -47,7 +47,7 @@ public class CustomerController {
     @Operation(summary = "Obtain current customer data, returns the authenticated customer's information based on the JWT token provided in the request")
     @ApiResponse(responseCode = "200", description = "Current customer data obtained successfully")
     @GetMapping("/me")
-    public ResponseEntity<CustomerDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CustomerResponseDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null)
             throw new UnauthorizedException("No autenticado");
 
