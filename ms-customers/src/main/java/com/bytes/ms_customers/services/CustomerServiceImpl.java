@@ -1,14 +1,20 @@
 package com.bytes.ms_customers.services;
 
-import com.bytes.ms_customers.dtos.*;
 import com.bytes.ms_customers.security.JwtUtils;
+import com.bytes.ms_customers.services.impl.CustomerService;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import com.bytes.ms_customers.dtos.CustomerResponseDTO;
 import com.bytes.ms_customers.dtos.CustomerValidationResponse;
-
+import com.bytes.ms_customers.dtos.LoginRequestDTO;
+import com.bytes.ms_customers.dtos.LoginResponseDTO;
+import com.bytes.ms_customers.dtos.RegisterRequestDTO;
+import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerStatus;
 import com.bytes.ms_customers.exceptions.ResourceNotFoundException;
 import com.bytes.ms_customers.mappers.CustomerMapper;
@@ -16,16 +22,14 @@ import com.bytes.ms_customers.models.Customer;
 import com.bytes.ms_customers.repositories.CustomerRepository;
 
 @Service
-public class CustomerService {
+public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
 
-
-
-    public CustomerService(CustomerRepository customerRepository,
+    public CustomerServiceImpl(CustomerRepository customerRepository,
                            CustomerMapper customerMapper,
                            PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
         this.customerRepository = customerRepository;
@@ -34,17 +38,19 @@ public class CustomerService {
         this.jwtUtils = jwtUtils;
     }
 
-    public RegisterResponseDTO registerCustomer(RegisterRequestDTO dto) {
+    public RegisterResponseDTO registerCustomer(@NonNull RegisterRequestDTO dto) {
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
-
-        Customer saved = customerRepository.save(
-                customerMapper.toCustomer(dto, CustomerStatus.ACTIVE)
+        
+        Customer mapped = Objects.requireNonNull(
+            customerMapper.toCustomer(dto, CustomerStatus.ACTIVE),
+            "CustomerMapper returned null"
         );
+        Customer saved = customerRepository.save(mapped);
 
         return customerMapper.toRegisterResponse(saved);
     }
 
-    public CustomerDTO getCurrentCustomer(String email) {
+    public CustomerResponseDTO getCurrentCustomer(@NonNull String email) {
         Optional<Customer> customer = customerRepository.findByEmail(email);
 
         if(!customer.isPresent())
@@ -53,7 +59,7 @@ public class CustomerService {
         return customerMapper.toCustomerDTO(customer.get());
     }
     
-    public LoginResponseDTO login(LoginRequestDTO request) {
+    public LoginResponseDTO login(@NonNull LoginRequestDTO request) {
         Customer customer = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Email o contraseña incorrectos"));
 
@@ -70,18 +76,17 @@ public class CustomerService {
         return new LoginResponseDTO(token);
     }
 
-    public CustomerValidationResponse validateCustomer(UUID customerId) {
+    public CustomerValidationResponse validateCustomer(@NonNull UUID customerId) {
         return customerRepository.findById(customerId)
-                .map(customer -> CustomerValidationResponse.builder()
-                        .customerId(customer.getId())
-                        .exists(true)
-                        .isActive(customer.getStatus() == CustomerStatus.ACTIVE)
-                        .build())
-                .orElse(CustomerValidationResponse.builder()
-                        .customerId(customerId)
-                        .exists(false)
-                        .isActive(false)
-                        .build());
+                .map(customer -> new CustomerValidationResponse(
+                        customer.getId(),
+                        true,
+                        customer.getStatus() == CustomerStatus.ACTIVE)
+                )
+                .orElse(new CustomerValidationResponse(
+                        customerId,
+                        false,
+                        false));
     }
 
 }

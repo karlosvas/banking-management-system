@@ -3,8 +3,6 @@ package com.bytes.ms_customers.dtos;
 import java.util.UUID;
 import com.bytes.ms_customers.enums.CustomerStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Data;
 
 /**
  * CustomerDTO - Data Transfer Object for Customer entity
@@ -21,25 +19,22 @@ import lombok.Data;
  * - hidden: Exclude field from documentation
  * - accessMode: READ_ONLY for fields like createdAt, WRITE_ONLY for password
  */
-@Data
-@Builder
 @Schema(description = "Data Transfer Object representing a customer")
-public class CustomerDTO {
-    
+public record CustomerResponseDTO (
+
     @Schema(
         description = "Unique customer identifier",
         example = "550e8400-e29b-41d4-a716-446655440000",
         accessMode = Schema.AccessMode.READ_ONLY
     )
-    private UUID id;
+    UUID id,
     
     @Schema(
         description = "Customer's DNI (Spanish National ID)",
         example = "12345678A",
         pattern = "^\\d{8}[A-Z]$"
-       
     )
-    private String dni;
+    String dni,
 
     @Schema(
         description = "Customer's first name",
@@ -48,7 +43,7 @@ public class CustomerDTO {
         maxLength = 50
        
     )
-    private String firstName;
+    String firstName,
     
     @Schema(
         description = "Customer's last name",
@@ -57,40 +52,40 @@ public class CustomerDTO {
         maxLength = 100
        
     )
-    private String lastName;
+    String lastName,
     
     @Schema(
         description = "Customer's email address",
         example = "john.doe@example.com"
        
     )
-    private String email;
+    String email,
     
     @Schema(
         description = "Customer's phone number",
         example = "+34123456789",
         pattern = "^\\+?\\d{7,15}$"
     )
-    private String phone;
+    String phone,
     
     @Schema(
         description = "Customer's physical address",
         example = "123 Main Street, Madrid, Spain",
         maxLength = 255
     )
-    private String address;
+    String address,
     
     @Schema(
         description = "Customer's current status",
         example = "ACTIVE",
         allowableValues = {"ACTIVE", "INACTIVE", "SUSPENDED", "DELETED"}
     )
-    private CustomerStatus status;
+    CustomerStatus status,
     
     @Schema(
         description = "Timestamp when the customer was created",
         example = "2024-01-15T10:30:00Z",
         accessMode = Schema.AccessMode.READ_ONLY
     )
-    private String createdAt;
-}
+    String createdAt
+){}

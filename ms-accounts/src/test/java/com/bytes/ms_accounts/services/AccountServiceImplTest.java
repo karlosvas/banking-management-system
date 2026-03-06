@@ -22,7 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bytes.ms_accounts.clients.CustomerClient;
 import com.bytes.ms_accounts.dtos.TransactionDTO;
 import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
-import com.bytes.ms_accounts.enums.StatusType;
+import com.bytes.ms_accounts.enums.AccountStatus;
+import com.bytes.ms_accounts.enums.TransactionStatus;
 import com.bytes.ms_accounts.enums.TransactionType;
 import com.bytes.ms_accounts.exceptions.BusinessException;
 import com.bytes.ms_accounts.mappers.AccountMapper;
@@ -52,6 +53,9 @@ class AccountServiceImplTest {
     private UUID accountId;
     private UUID customerId;
     private Account testAccount;
+
+    @Mock
+    private TransactionRecorderService transactionRecorderService;
 
     @BeforeEach
     void setUp() {
@@ -97,10 +101,10 @@ class AccountServiceImplTest {
 
             // Assert
             assertThat(result).isNotNull();
-            assertThat(result.getAccountId()).isEqualTo(accountId);
-            assertThat(result.getAmount()).isEqualTo(withdrawalAmount);
-            assertThat(result.getBalanceAfter()).isEqualTo(expectedNewBalance);
-            assertThat(result.getType()).isEqualTo(TransactionType.WITHDRAWAL.name());
+            assertThat(result.accountId()).isEqualTo(accountId);
+            assertThat(result.amount()).isEqualTo(withdrawalAmount);
+            assertThat(result.balanceAfter()).isEqualTo(expectedNewBalance);
+            assertThat(result.type()).isEqualTo(TransactionType.WITHDRAWAL);
 
             // Verify account was updated
             ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
@@ -148,7 +152,7 @@ class AccountServiceImplTest {
         @DisplayName("Should throw BusinessException when account is not active")
         void withdraw_WithInactiveAccount_ShouldThrowBusinessException() {
             // Arrange
-            testAccount.setStatus(StatusType.INACTIVE);
+            testAccount.setStatus(AccountStatus.INACTIVE);
             when(accountRepository.findById(accountId)).thenReturn(Optional.of(testAccount));
 
             // Act & Assert
@@ -397,22 +401,24 @@ class AccountServiceImplTest {
         account.setAccountNumber("ES0012345678901234567890");
         account.setBalance(new BigDecimal("1000.00"));
         account.setDailyWithdrawalLimit(new BigDecimal("500.00"));
-        account.setStatus(StatusType.ACTIVE);
+        account.setStatus(AccountStatus.ACTIVE);
         account.setCreatedAt(Instant.now());
         return account;
     }
 
     private TransactionDTO createTransactionDTO(UUID accountId, BigDecimal amount, BigDecimal balanceAfter) {
-        return TransactionDTO.builder()
-                .id(UUID.randomUUID())
-                .accountId(accountId)
-                .type(TransactionType.WITHDRAWAL.name())
-                .amount(amount)
-                .balanceAfter(balanceAfter)
-                .concept("ATM withdrawal")
-                .referenceNumber("REF-" + System.currentTimeMillis())
-                .status(StatusType.ACTIVE.name())
-                .createdAt(Instant.now())
-                .build();
+        return new TransactionDTO(
+            UUID.randomUUID(),
+            accountId,
+            TransactionType.WITHDRAWAL,
+            amount,
+            balanceAfter,
+            "ATM withdrawal",
+            "ES9121000418450200051332",
+            "Bank ATM",
+            "REF-" + System.currentTimeMillis(),
+            TransactionStatus.COMPLETED,
+            Instant.now()
+        );
     }
 }

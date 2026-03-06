@@ -1,12 +1,14 @@
 package com.bytes.ms_customers.controllers;
 
 import com.bytes.ms_customers.anotations.SwaggerApiResponses;
-import com.bytes.ms_customers.dtos.CustomerDTO;
+import com.bytes.ms_customers.dtos.CustomerResponseDTO;
 import com.bytes.ms_customers.dtos.CustomerValidationResponse;
 import com.bytes.ms_customers.dtos.LoginRequestDTO;
 import com.bytes.ms_customers.dtos.LoginResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
+import com.bytes.ms_customers.exceptions.ForbiddenException;
+import com.bytes.ms_customers.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-import com.bytes.ms_customers.services.CustomerService;
-
+import com.bytes.ms_customers.services.CustomerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -31,9 +31,9 @@ import java.util.UUID;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    private final CustomerService customerService;
+    private final CustomerServiceImpl customerService;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerServiceImpl customerService) {
         this.customerService = customerService;
     }
 
@@ -47,9 +47,9 @@ public class CustomerController {
     @Operation(summary = "Obtain current customer data, returns the authenticated customer's information based on the JWT token provided in the request")
     @ApiResponse(responseCode = "200", description = "Current customer data obtained successfully")
     @GetMapping("/me")
-    public ResponseEntity<CustomerDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CustomerResponseDTO> getCurrentCustomer(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException("No autenticado");
 
         return ResponseEntity.ok(customerService.getCurrentCustomer(userDetails.getUsername()));
     }
@@ -68,9 +68,8 @@ public class CustomerController {
             @PathVariable UUID customerId,
             @RequestHeader(value = "X-Internal-Service", required = false) String internalService) {
 
-        if (!"ms-accounts".equals(internalService)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso restringido a llamadas internas");
-        }
+        if (!"ms-accounts".equals(internalService))
+            throw new ForbiddenException("Acceso restringido a llamadas internas");
 
         return ResponseEntity.ok(customerService.validateCustomer(customerId));
     }

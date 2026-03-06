@@ -13,8 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.bytes.ms_customers.dtos.CustomerDTO;
+import com.bytes.ms_customers.dtos.CustomerResponseDTO;
 import com.bytes.ms_customers.dtos.RegisterRequestDTO;
 import com.bytes.ms_customers.dtos.RegisterResponseDTO;
 import com.bytes.ms_customers.enums.CustomerRole;
@@ -41,7 +40,7 @@ class CustomerServiceTest {
     private JwtUtils jwtUtils;
 
     @InjectMocks
-    private CustomerService customerService;
+    private CustomerServiceImpl customerService;
 
     @Test
     void registerCustomer_WithValidData_ShouldReturnRegisteredCustomer() {
@@ -56,7 +55,7 @@ class CustomerServiceTest {
         RegisterResponseDTO result = customerService.registerCustomer(request);
 
         assertThat(result).isNotNull();
-        assertThat(result.getDni()).isEqualTo("12345678A");
+        assertThat(result.dni()).isEqualTo("12345678A");
 
         verify(customerRepository).save(customer);
     }
@@ -65,16 +64,16 @@ class CustomerServiceTest {
     void getCurrentCustomer_WithValidEmail_ShouldReturnCustomerDTO() {
         String email = "juan.perez@example.com";
         Customer customer = createCustomer();
-        CustomerDTO expectedDTO = createCustomerDTO();
+        CustomerResponseDTO expectedDTO = createCustomerResponseDTO();
 
         when(customerRepository.findByEmail(email)).thenReturn(Optional.of(customer));
         when(customerMapper.toCustomerDTO(customer)).thenReturn(expectedDTO);
 
-        CustomerDTO result = customerService.getCurrentCustomer(email);
+        CustomerResponseDTO result = customerService.getCurrentCustomer(email);
 
         assertThat(result).isNotNull();
-        assertThat(result.getEmail()).isEqualTo(email);
-        assertThat(result.getFirstName()).isEqualTo("Juan");
+        assertThat(result.email()).isEqualTo(email);
+        assertThat(result.firstName()).isEqualTo("Juan");
 
         verify(customerRepository).findByEmail(email);
         verify(customerMapper).toCustomerDTO(customer);
@@ -121,28 +120,28 @@ class CustomerServiceTest {
     }
 
     private RegisterResponseDTO createRegisterResponse() {
-        return RegisterResponseDTO.builder()
-            .id(UUID.randomUUID())
-            .dni("12345678A")
-            .fullName("Juan Pérez")
-            .email("juan.perez@example.com")
-            .status(CustomerStatus.ACTIVE)
-            .createdAt(Instant.now())
-            .build();
+        return new RegisterResponseDTO(
+            UUID.randomUUID(),
+            "12345678A",
+            "Juan Pérez",
+            "juan.perez@example.com",
+            CustomerStatus.ACTIVE,
+            Instant.now()
+        );
     }
 
-    private CustomerDTO createCustomerDTO() {
-        return CustomerDTO.builder()
-            .id(UUID.randomUUID())
-            .dni("12345678A")
-            .firstName("Juan")
-            .lastName("Pérez")
-            .email("juan.perez@example.com")
-            .phone("+34123456789")
-            .address("Calle Principal 123")
-            .status(CustomerStatus.ACTIVE)
-            .createdAt(Instant.now().toString())
-            .build();
+    private CustomerResponseDTO createCustomerResponseDTO() {
+        return new CustomerResponseDTO(
+            UUID.randomUUID(),
+            "12345678A",
+            "Juan",
+            "Pérez",
+            "juan.perez@example.com",
+            "+34123456789",
+            "Calle Principal 123",
+            CustomerStatus.ACTIVE,
+            Instant.now().toString()
+        );
     }
 
 }

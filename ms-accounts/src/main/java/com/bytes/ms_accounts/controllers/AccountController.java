@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bytes.ms_accounts.annotations.SwaggerApiResponses;
-import com.bytes.ms_accounts.dtos.AccountDTO;
-import com.bytes.ms_accounts.dtos.RequestAccountDTO;
 import com.bytes.ms_accounts.dtos.TransactionDTO;
 import com.bytes.ms_accounts.dtos.WithdrawalRequestDTO;
+import com.bytes.ms_accounts.dtos.AccountResponseDTO;
+import com.bytes.ms_accounts.exceptions.UnauthorizedException;
+import com.bytes.ms_accounts.dtos.AccountRequestDTO;
 import com.bytes.ms_accounts.security.JwtUtils;
 import com.bytes.ms_accounts.services.AccountServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,9 +43,13 @@ public class AccountController {
     )
     @ApiResponse(responseCode = "201", description = "Account created successfully")
     @PutMapping
-    public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody RequestAccountDTO request, HttpServletRequest httpRequest) {
+    public ResponseEntity<AccountResponseDTO> createAccount(@Valid @RequestBody AccountRequestDTO request, HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
-        AccountDTO account = accountService.createAccount(request, customerId);
+
+        if (customerId == null)
+            throw new UnauthorizedException("Could not determine authenticated customer");
+
+        AccountResponseDTO account = accountService.createAccount(request, customerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
 
@@ -54,9 +59,9 @@ public class AccountController {
     )
     @ApiResponse(responseCode = "200", description = "Accounts retrieved successfully")
     @GetMapping
-    public ResponseEntity<List<AccountDTO>> getAccount(HttpServletRequest httpRequest) {
+    public ResponseEntity<List<AccountResponseDTO>> getAccount(HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
-        List<AccountDTO> listAccounts = accountService.getAccounts(customerId);
+        List<AccountResponseDTO> listAccounts = accountService.getAccounts(customerId);
         return ResponseEntity.ok().body(listAccounts);
     }
 
@@ -66,9 +71,9 @@ public class AccountController {
     )
     @ApiResponse(responseCode = "200", description = "Account retrieved successfully")
     @GetMapping("/{accountId}")
-    public ResponseEntity<AccountDTO> getAccountById(@PathVariable UUID accountId, HttpServletRequest httpRequest) {
+    public ResponseEntity<AccountResponseDTO> getAccountById(@PathVariable UUID accountId, HttpServletRequest httpRequest) {
         UUID customerId = jwtUtils.getCustomerIdFromRequest(httpRequest);
-        AccountDTO account = accountService.getAccountById(accountId, customerId);
+        AccountResponseDTO account = accountService.getAccountById(accountId, customerId);
         return ResponseEntity.ok().body(account);
     }
 

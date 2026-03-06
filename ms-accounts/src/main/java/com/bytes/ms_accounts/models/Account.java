@@ -3,10 +3,8 @@ package com.bytes.ms_accounts.models;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
-
 import com.bytes.ms_accounts.enums.AccountStatus;
 import com.bytes.ms_accounts.enums.AccountType;
-import com.bytes.ms_accounts.enums.StatusType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
