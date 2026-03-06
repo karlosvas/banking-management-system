@@ -128,6 +128,15 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.toDTO(accountOpt.get());
     }
 
+    public AccountResponseDTO getAccountByNumber(@NonNull String accountNumber) {
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+
+        if (!accountOpt.isPresent())
+            throw new ResourceNotFoundException(String.format("Account with number %s does not exist", accountNumber));
+
+        return accountMapper.toDTO(accountOpt.get());
+    }
+
     @Transactional
     public TransactionDTO withdraw(@NonNull UUID accountId, @NonNull UUID customerId, @NonNull WithdrawalRequestDTO request) {
         String referenceNumber = generateReferenceNumber();

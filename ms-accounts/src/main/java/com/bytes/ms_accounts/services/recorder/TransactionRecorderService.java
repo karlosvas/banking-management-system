@@ -1,5 +1,6 @@
 package com.bytes.ms_accounts.services.recorder;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class TransactionRecorderService {
             .type(TransactionType.WITHDRAWAL)
             .amount(request.getAmount())
             .concept(reason)
+            .balanceAfter(BigDecimal.ZERO)
             .referenceNumber(referenceNumber)
             .status(TransactionStatus.FAILED)
             .createdAt(Instant.now())
